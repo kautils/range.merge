@@ -217,7 +217,12 @@ int main() {
                     auto c0_cond_d = bool(i1.direction<0);
                     auto c0_cond_zero = bool((!i0.direction)*!(i0.nearest_pos%(sizeof(value_type)*2)));
                     auto c0_adj_pos = -sizeof(value_type); 
-                    i0.nearest_pos+= static_cast<offset_type>(c0_is_contained*(c0_cond_d+c0_cond_zero)*c0_adj_pos);
+                    auto c0_cond_adjust = c0_is_contained*(c0_cond_d+c0_cond_zero);
+                    if(c0_cond_adjust){
+                        i0.nearest_pos+=static_cast<offset_type>(c0_adj_pos);
+                        auto ptr = &i0.nearest_value;
+                        pref.read_value(i0.nearest_pos,&ptr);
+                    }
                     
                     // if c1 is contained and 
                         // d < 0 then +=8
@@ -228,8 +233,12 @@ int main() {
                     auto c1_cond_d = bool(i1.direction>0);
                     auto c1_cond_zero = bool((!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2)));
                     auto c1_adj_pos = sizeof(value_type); 
-                    i1.nearest_pos+= static_cast<offset_type>( c1_is_contained*(c1_cond_d+c1_cond_zero)*c1_adj_pos);
-                    
+                    auto c1_cond_adjust = c1_is_contained*(c1_cond_d+c1_cond_zero);
+                    if(c1_cond_adjust){
+                        i1.nearest_pos+=static_cast<offset_type>(c1_adj_pos);
+                        auto ptr = &i1.nearest_value;
+                        pref.read_value(i1.nearest_pos,&ptr);
+                    }
                 }
                 
                 printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
