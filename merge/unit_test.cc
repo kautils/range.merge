@@ -161,14 +161,14 @@ int main() {
 
 
     { // case single block : change the diff
-        v.resize(2);diff = 1;
+//        v.resize(2);diff = 1;
 // ovf-contained expect ([0,8] - (1,20)) 
 //    from = value_type(1);to = value_type(11); 
 //    from = value_type(1);to = value_type(9); //todo : miss (1,20)
 
 // contained-ovf 
 //    from = value_type(9);to = value_type(21); //expect [0,8] (10,20)
-    from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
+//    from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
         
 // contained contained (inside-exact) 
 //    from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
@@ -185,7 +185,7 @@ int main() {
     }
 
     { // case two block 
-//        v.resize(4);diff = 0;
+        v.resize(4);diff = 0;
 //        from = value_type(0);to = value_type(5); // ovf-ovf(lower) ([0,8] : (0,5))
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(0);to = value_type(30); // ovf-contained ([0,8] : (0,40))
@@ -200,7 +200,7 @@ int main() {
 //        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
 //        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
 //        from = value_type(21);to = value_type(25); // ovf-ovf ([10,25] : (16,24))
-//        from = value_type(25);to = value_type(35); // ovf-ovf ([25,40] : (16,24))
+        from = value_type(25);to = value_type(35); // ovf-ovf ([25,40] : (16,24))
         
         
     }
@@ -322,7 +322,7 @@ int main() {
                 auto i0_adj_when_vacant =
                     (2== (!bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction<0)))*(-sizeof(value_type))
                     +(2==( bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction>0)))*(sizeof(value_type));
-                i0.nearest_pos+=i0_adj_when_vacant;
+                i0.nearest_pos+=!i0.overflow*i0_adj_when_vacant;
                 // express squash with i1 
                 i1.nearest_pos-=static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
                 
