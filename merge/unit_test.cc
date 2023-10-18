@@ -67,12 +67,13 @@ using file_syscall_16b_f_pref= file_syscall_premitive<double>;
 
 
 
+
+
 int main() {
     
     using value_type = uint64_t;
     using offset_type = long;
-    
-    
+
     auto is_contained = [](offset_type pos , int direction){
         return bool(
             !direction
@@ -122,39 +123,67 @@ int main() {
     };
     
     
-    
-    std::vector<value_type> v;
+        
+    auto v = std::vector<value_type>{};
     for(auto i = 0 ; i < 100; i+=2){
-        v.push_back(i*10);
+        v.push_back(i*10+10);
         v.push_back(v.back()+10);
     }
-    v.resize(2);
+    
+    auto from = value_type(0);
+    auto to = value_type(0);
+//    {
+//        v.resize(0);
+//        // case zero : correct
+//        // from = value_type(10);
+//        // to = value_type(100);
+//        
+//        // case zero : wrong
+//        from = value_type(0);
+//        to = value_type(0);
+//    }
+    
+    { // case single block
+        v.resize(2);
+        // case zero : correct
+        // from = value_type(10);
+        // to = value_type(100);
+
+        // case zero : wrong
+        from = value_type(0);
+        to = value_type(10);
+    }
+    
     
     auto f = fopen("merge.cache","w+b");
     auto ws = fwrite(v.data(),sizeof(value_type),v.size(),f);fflush(f);
     auto fd = fileno(f);
+    
+    
+    
+    
+
     auto pref = file_syscall_premitive<value_type>{.fd=fileno(f)};
     
     {
-        auto from = value_type(60);
-        auto to = value_type(120);
         
+        auto is_ordered = from<to;
         auto bt = kautil::algorithm::btree_search{&pref};
         auto i0 = bt.search(from,false);
         auto i1 = bt.search(to,false);
         
         constexpr auto kSameBlock = 1,kDifferent = 0,kSamevacant = -1;
         auto cond_section = is_same_section(i0,i1);
-        if(kSameBlock !=cond_section){ 
+        if(0==(!is_ordered+!(kSameBlock !=cond_section))){ 
             // newly add element to memory or file
             auto is_claim_region = (kSamevacant==cond_section);  
-            
             auto fsize=  pref.size();
-            if(!fsize){
+            if(is_ordered*!fsize){
+                printf("write block : from,to(%lld,%lld)",from,to);
                 value_type new_block[2]= {from,to};
                 auto new_block_ptr = &new_block;
-                pref.write(0,(void**)&new_block_ptr,sizeof(new_block));
-            }else if(fsize == (sizeof(value_type)*2) ){
+                pref.write(0,(void**)&new_block_ptr,sizeof(*new_block));
+            }else if(0==(!is_ordered+!(fsize == (sizeof(value_type)*2))) ){
     
                 auto min_size = 0;
                 auto max_size = pref.size();
@@ -184,32 +213,59 @@ int main() {
                         // d > 0 then nothing
                         // d = 0 and !(%(sizeof(value_type)*2)) then -=8
                         // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                    auto c0_is_contained = !i0.overflow * is_contained(i0.nearest_pos,i0.direction);
-                    auto c0_cond_d = i1.direction<0;
-                    auto c0_cond_zero = (!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2));
+                    auto c0_is_contained = bool(!i0.overflow * is_contained(i0.nearest_pos,i0.direction));
+                    auto c0_cond_d = bool(i1.direction<0);
+                    auto c0_cond_zero = bool((!i0.direction)*!(i0.nearest_pos%(sizeof(value_type)*2)));
                     auto c0_adj_pos = -sizeof(value_type); 
-                    i1.nearest_pos+= static_cast<offset_type>(c0_is_contained*(c0_cond_d+c0_cond_zero)*c0_adj_pos);
+                    i0.nearest_pos+= static_cast<offset_type>(c0_is_contained*(c0_cond_d+c0_cond_zero)*c0_adj_pos);
                     
                     // if c1 is contained and 
                         // d < 0 then +=8
                         // d > 0 then nothing
                         // d = 0 and !(%(sizeof(value_type)*2)) then +=8
                         // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                    auto c1_is_contained = !i1.overflow * is_contained(i1.nearest_pos,i1.direction);
-                    auto c1_cond_d = i1.direction>0;
-                    auto c1_cond_zero = (!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2));
+                    auto c1_is_contained = bool(!i1.overflow * is_contained(i1.nearest_pos,i1.direction));
+                    auto c1_cond_d = bool(i1.direction>0);
+                    auto c1_cond_zero = bool((!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2)));
                     auto c1_adj_pos = sizeof(value_type); 
                     i1.nearest_pos+= static_cast<offset_type>( c1_is_contained*(c1_cond_d+c1_cond_zero)*c1_adj_pos);
                     
                 }
+                
+                printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
+                printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
+                
+            }else{
+                printf("else\n",fsize);
+                printf("  %d\n",fsize);
+                
+                
+                
+                int jjj =0;
             }
 
             
+            // check 
+            // squash
+            
         }else{
+            printf("wrong\n");
+            printf("  is_ordered(%d)\n",is_ordered);
+            
             // wrong file
         }
         
+        
+        
+        
     }
+    
+    
+    
+    
+    
+    
+    
 
     fclose(f);
     
