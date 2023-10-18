@@ -132,6 +132,7 @@ int main() {
         v.push_back(v.back()+10);
     }
     
+    auto diff = value_type(0);
     auto from = value_type(0);
     auto to = value_type(0);
 //    {
@@ -146,7 +147,7 @@ int main() {
 //    }
     
     { // case single block
-        v.resize(2);
+        v.resize(2);diff = 1;
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] - (0,20))
 //        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
@@ -155,6 +156,8 @@ int main() {
 //        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
 //        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
     }
+    
+    
     
     
     auto f = fopen("merge.cache","w+b");
@@ -173,6 +176,13 @@ int main() {
         auto bt = kautil::algorithm::btree_search{&pref};
         auto i0 = bt.search(from,false);
         auto i1 = bt.search(to,false);
+
+        auto cur_diff=
+              (i0.nearest_pos > from)*(i0.nearest_pos-from)
+            +!(i0.nearest_pos > from)*(-i0.nearest_pos+from);
+        i0.direction*=!(cur_diff <= diff);
+        
+        
         
         constexpr auto kSameBlock = 1,kDifferent = 0,kSamevacant = -1;
         auto cond_section = is_same_section(i0,i1);
@@ -250,9 +260,6 @@ int main() {
                 printf("else\n",fsize);
                 printf("  %d\n",fsize);
                 
-                
-                
-                int jjj =0;
             }
 
             
