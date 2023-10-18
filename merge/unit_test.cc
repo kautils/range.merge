@@ -116,14 +116,22 @@ int main() {
                 +!i0.overflow*i0.nearest_pos;
     };
     
-    auto adjust_nv_ovf = [](auto & i0,auto from,auto to){
-            // if upper overflow then nearest_value = to
-            // if lower overflow then nearest_value = from
-            return 
-                  i0.overflow*((i0.direction > 0)*to + (i0.direction < 0)*from)
-                +!i0.overflow*i0.nearest_value;
-    };
+//    auto adjust_nv_ovf = [](auto & i0,auto input){
+//            // if upper overflow then nearest_value = to
+//            // if lower overflow then nearest_value = from
+//            return 
+//                  i0.overflow*input
+//                +!i0.overflow*i0.nearest_value;
+//    };
     
+//    auto adjust_nv_ovf = [](auto & i0,auto from,auto to){
+//            // if upper overflow then nearest_value = to
+//            // if lower overflow then nearest_value = from
+//            return 
+//                  i0.overflow*((i0.direction > 0)*to + (i0.direction < 0)*from)
+//                +!i0.overflow*i0.nearest_value;
+//    };
+//    
     
     // adjust direction with specified diff
     auto is_adjust_diff = [](auto i0,auto diff,auto input){
@@ -156,7 +164,7 @@ int main() {
 //    }
     
     { // case single block
-        v.resize(2);diff = 1;
+        v.resize(2);diff = 0;
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
@@ -233,10 +241,10 @@ int main() {
                         // nearest_value = from
                     
                     i0.nearest_pos = adjust_np_ovf(i0,pos_min,pos_max);
-                    i1.nearest_pos = adjust_np_ovf(i1,pos_min,pos_max);
+                    i0.nearest_value = i0.overflow*from + !i0.overflow*i0.nearest_value; 
                     
-                    i0.nearest_value = adjust_nv_ovf(i0,from,to);
-                    i1.nearest_value = adjust_nv_ovf(i1,from,to);
+                    i1.nearest_pos = adjust_np_ovf(i1,pos_min,pos_max);
+                    i1.nearest_value = i1.overflow*to + !i1.overflow*i1.nearest_value; 
                 }
                 
                 
