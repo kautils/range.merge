@@ -125,6 +125,15 @@ int main() {
     };
     
     
+    // adjust direction with specified diff
+    auto is_adjust_diff = [](auto i0,auto diff,auto input){
+        auto i0_diff=
+              (i0.nearest_value > input)*(i0.nearest_value-input)
+            +!(i0.nearest_value > input)*(-i0.nearest_value+input);
+        return (i0_diff <= diff);
+    };
+
+    
         
     auto v = std::vector<value_type>{};
     for(auto i = 0 ; i < 100; i+=2){
@@ -148,26 +157,31 @@ int main() {
     
     { // case single block
         v.resize(2);diff = 1;
-//        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] - (0,20))
+//        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
 //        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
 //        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
 //        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
 //        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
+        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
+        
     }
-    
-    
+
+
+    { // case single block : change the diff
+//        v.resize(2);diff = 2;
+//        from = value_type(1);to = value_type(11); // ovf-contained ([0,8] - (0,20))
+//        from = value_type(1);to = value_type(9); // ovf-contained ([0,8] - (0,20))
+//        from = value_type(2);to = value_type(8); // ovf-contained ([0,8] - (0,20))
+        
+        
+    }
     
     
     auto f = fopen("merge.cache","w+b");
     auto ws = fwrite(v.data(),sizeof(value_type),v.size(),f);fflush(f);
     auto fd = fileno(f);
-    
-    
-    
-    
-
     auto pref = file_syscall_premitive<value_type>{.fd=fileno(f)};
     
     {
@@ -176,11 +190,17 @@ int main() {
         auto bt = kautil::algorithm::btree_search{&pref};
         auto i0 = bt.search(from,false);
         auto i1 = bt.search(to,false);
-
-        auto cur_diff=
-              (i0.nearest_pos > from)*(i0.nearest_pos-from)
-            +!(i0.nearest_pos > from)*(-i0.nearest_pos+from);
-        i0.direction*=!(cur_diff <= diff);
+        
+        
+        
+        // adjust direction with specified diff
+        auto i0_is_diff_adjust = is_adjust_diff(i0,diff,from);
+        i0.direction*=!i0_is_diff_adjust;
+        i0.overflow*=!i0_is_diff_adjust;
+        
+        auto i1_is_diff_adjust = is_adjust_diff(i1,diff,to);
+        i1.direction*=!i1_is_diff_adjust;
+        i1.overflow*=!i1_is_diff_adjust;
         
         
         
