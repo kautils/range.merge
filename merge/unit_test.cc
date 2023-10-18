@@ -145,8 +145,10 @@ int main() {
     
     { // case single block
         v.resize(2);
-        //from = value_type(0);to = value_type(10);
-        from = value_type(15);to = value_type(30);
+//        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] - (0,20))
+        from = value_type(15);to = value_type(30); // contained-ovf 
+//        from = value_type(0);to = value_type(30); // ovf-ovf   
+//        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
     }
     
     
@@ -209,22 +211,27 @@ int main() {
                         // d > 0 then nothing
                         // d = 0 and !(%(sizeof(value_type)*2)) then -=8
                         // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                    auto c0_is_contained = bool(!i0.overflow * is_contained(i0.nearest_pos,i0.direction));
+                    //auto c0_is_contained = bool(!i0.overflow * is_contained(i0.nearest_pos,i0.direction));
                     auto c0_adj_pos = -sizeof(value_type); 
-                    if(c0_is_contained){ 
+                    auto c0_cond_d =i0.direction<0; 
+                    auto c0_cond_dzero = 2==(!i0.direction+(i0.nearest_pos%(sizeof(value_type)*2) ));
+                    auto c0_is_contained_adjust = !i0.overflow*(c0_cond_d+c0_cond_dzero); 
+                    if(c0_is_contained_adjust){
                         i0.nearest_pos+=static_cast<offset_type>(c0_adj_pos);
                         auto ptr = &i0.nearest_value;
                         pref.read_value(i0.nearest_pos,&ptr);
                     }
                     
                     // if c1 is contained and 
-                        // d < 0 then +=8
-                        // d > 0 then nothing
-                        // d = 0 and !(%(sizeof(value_type)*2)) then +=8
-                        // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                    auto c1_is_contained = bool(!i1.overflow * is_contained(i1.nearest_pos,i1.direction));
+                        // d < 0 then nothing
+                        // d > 0 then +=8
+                        // d = 0 and !(%(sizeof(value_type)*2)) then nothing
+                        // d = 0 and (%(sizeof(value_type)*2)) then +=8
                     auto c1_adj_pos = sizeof(value_type); 
-                    if(c1_is_contained){
+                    auto c1_cond_d =i1.direction>0; 
+                    auto c1_cond_dzero = 2==(!i1.direction+!(i1.nearest_pos%(sizeof(value_type)*2) ));
+                    auto c1_is_contained_adjust = !i1.overflow*(c1_cond_d+c1_cond_dzero); 
+                    if(c1_is_contained_adjust){
                         i1.nearest_pos+=static_cast<offset_type>(c1_adj_pos);
                         auto ptr = &i1.nearest_value;
                         pref.read_value(i1.nearest_pos,&ptr);
