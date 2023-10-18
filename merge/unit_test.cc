@@ -79,8 +79,8 @@ int main() {
     auto is_contained = [](offset_type pos , int direction){
         return bool(
             !direction
-            +(2 == (  pos % 16  + (direction<0)))
-            +(2 == (!(pos % 16) + (direction>0)))
+            +(2 == ( bool(pos % 16)  + (direction<0)))
+            +(2 == (!bool(pos % 16) + (direction>0)))
         );
     };
     
@@ -147,14 +147,14 @@ int main() {
 //    }
     
     { // case single block
-//        v.resize(2);diff = 0;
+        v.resize(2);diff = 0;
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
 //        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
 //        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
 //        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
-//        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
+        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
 //        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
 //        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
     }
@@ -185,7 +185,7 @@ int main() {
     }
 
     { // case two block 
-        v.resize(4);diff = 0;
+//        v.resize(4);diff = 0;
 //        from = value_type(0);to = value_type(5); // ovf-ovf(lower) ([0,8] : (0,5))
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(0);to = value_type(30); // ovf-contained ([0,8] : (0,40))
@@ -197,8 +197,7 @@ int main() {
 //        from = value_type(10);to = value_type(20); // ovf-ovf ([10,20] : (0,8))
 //        from = value_type(12);to = value_type(18); // ovf-ovf ([10,20] : (0,8))
 //        from = value_type(10);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
-//        
-        from = value_type(10);to = value_type(30); // ovf-contained ([0,8] : (10,40))
+//        from = value_type(10);to = value_type(30); // ovf-contained ([0,8] : (10,40))
         
         
     }
@@ -286,12 +285,14 @@ int main() {
                     auto c0_cond_dzero = 2==(!i0.direction+bool(i0.nearest_pos%(sizeof(value_type)*2) ));
                     auto c0_is_contained = is_contained(i0.nearest_pos,i0.direction);
                     auto c0_is_contained_adjust = 3==(c0_is_contained+!i0.overflow+bool(c0_cond_d+c0_cond_dzero)); 
-//                    auto c0_is_contained_adjust = !i0.overflow*(c0_cond_d+c0_cond_dzero); 
                     if(c0_is_contained_adjust){
                         i0.nearest_pos+=static_cast<offset_type>(c0_adj_pos);
                         auto ptr = &i0.nearest_value;
                         pref.read_value(i0.nearest_pos,&ptr);
                     }
+                    i0.nearest_value=
+                            !c0_is_contained*from
+                            +c0_is_contained*i0.nearest_value;
                     
                     // if c1 is contained and 
                         // d < 0 then nothing
@@ -302,13 +303,18 @@ int main() {
                     auto c1_cond_d =i1.direction>0; 
                     auto c1_cond_dzero = 2==(!i1.direction+!bool(i1.nearest_pos%(sizeof(value_type)*2) ));
                     auto c1_is_contained = is_contained(i1.nearest_pos,i1.direction);
-//                    auto c1_is_contained_adjust = !i1.overflow*(c1_cond_d+c1_cond_dzero); 
                     auto c1_is_contained_adjust = 3==(c1_is_contained+!i1.overflow+bool(c1_cond_d+c1_cond_dzero)); 
                     if(c1_is_contained_adjust){
                         i1.nearest_pos+=static_cast<offset_type>(c1_adj_pos);
                         auto ptr = &i1.nearest_value;
                         pref.read_value(i1.nearest_pos,&ptr);
                     }
+                    
+                    i1.nearest_value=
+                            !c1_is_contained*to
+                            +c1_is_contained*i1.nearest_value;
+                    
+                    
                 }
 
 
