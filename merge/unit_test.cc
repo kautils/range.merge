@@ -143,10 +143,12 @@ int main() {
         auto i0 = bt.search(from,false);
         auto i1 = bt.search(to,false);
         
-        
-        if(auto cond_section = is_same_section(i0,i1)){ 
+        constexpr auto kSameBlock = 1,kDifferent = 0,kSamevacant = -1;
+        auto cond_section = is_same_section(i0,i1);
+        if(kSameBlock !=cond_section){ 
             // newly add element to memory or file
-            auto is_claim_region = -1==cond_section;  
+            auto is_claim_region = (kSamevacant==cond_section);  
+            
             auto fsize=  pref.size();
             if(!fsize){
                 value_type new_block[2]= {from,to};
