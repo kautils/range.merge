@@ -97,7 +97,7 @@ int main() {
         // otherwise return 0 (two exist in different block) 
         
         auto is_same_pos = btres0.nearest_pos == btres1.nearest_pos; 
-        auto is_odd = !(btres0.nearest_pos%sizeof(value_type)); 
+        auto is_odd = !(btres0.nearest_pos%(sizeof(value_type)*2) ); 
         auto directions = btres0.direction+btres1.direction;
 
         return is_same_pos *(
@@ -147,14 +147,14 @@ int main() {
 //    }
     
     { // case single block
-        v.resize(2);diff = 0;
+//        v.resize(2);diff = 0;
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
 //        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
 //        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
 //        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
-        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
+//        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
 //        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
 //        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
     }
@@ -185,7 +185,7 @@ int main() {
     }
 
     { // case two block 
-//        v.resize(4);diff = 0;
+        v.resize(4);diff = 0;
 //        from = value_type(0);to = value_type(5); // ovf-ovf(lower) ([0,8] : (0,5))
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(0);to = value_type(30); // ovf-contained ([0,8] : (0,40))
@@ -197,7 +197,9 @@ int main() {
 //        from = value_type(10);to = value_type(20); // ovf-ovf ([10,20] : (0,8))
 //        from = value_type(12);to = value_type(18); // ovf-ovf ([10,20] : (0,8))
 //        from = value_type(10);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
-//        from = value_type(10);to = value_type(30); // ovf-contained ([0,8] : (10,40))
+//        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
+//        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
+        from = value_type(21);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
         
         
     }
@@ -245,7 +247,6 @@ int main() {
                 
                 
                 // adjust nearest_pos and nearest_value
-                
                 { // adjust overflow
                     // if upper overflow then 
                         // nearest_pos = max_size   
@@ -255,6 +256,7 @@ int main() {
                         // nearest_pos = mix_size   
                         // nearest_value = from
                     
+                        
                     i0.nearest_pos = adjust_np_ovf(i0,pos_min,pos_max);
                     i0.nearest_value = i0.overflow*from + !i0.overflow*i0.nearest_value; 
                     
@@ -314,6 +316,10 @@ int main() {
                             !c1_is_contained*to
                             +c1_is_contained*i1.nearest_value;
                     
+                    
+                    auto is_same_vacant = bool(cond_section==kSamevacant);
+                    i0.nearest_pos= is_same_vacant*(i0.nearest_pos+sizeof(value_type))+!is_same_vacant*i0.nearest_pos;
+                    i1.nearest_pos= is_same_vacant*(i0.nearest_pos+sizeof(value_type))+!is_same_vacant*i1.nearest_pos;
                     
                 }
 
