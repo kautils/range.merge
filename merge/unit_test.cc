@@ -156,17 +156,33 @@ int main() {
 //        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
 //        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
 //        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
-        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
+//        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
         
     }
 
 
     { // case single block : change the diff
-//        v.resize(2);diff = 2;
-//        from = value_type(1);to = value_type(11); // ovf-contained ([0,8] - (0,20))
-//        from = value_type(1);to = value_type(9); // ovf-contained ([0,8] - (0,20))
-//        from = value_type(2);to = value_type(8); // ovf-contained ([0,8] - (0,20))
-//        from = value_type(3);to = value_type(7); // ovf(lower)-ovf(lower) ([0,8] - (3,7))
+        v.resize(2);diff = 1;
+// ovf-contained expect ([0,8] - (0,20))
+//    from = value_type(1);to = value_type(11); 
+//    from = value_type(1);to = value_type(9); 
+
+// contained-ovf expect [0,8] (10,20)
+//    from = value_type(9);to = value_type(21);
+//    from = value_type(8);to = value_type(22);   
+        
+// contained contained (inside-exact) 
+//    from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
+//    from = value_type(15);to = value_type(22);  // expect [0,8] : (10,22)
+        
+// ovf(lower) ovf(lower) expect [0,8] : (5,8)
+//    from = value_type(5);to = value_type(9); //expect [0,8] : (5,20)
+//    from = value_type(5);to = value_type(8); //expect [0,8] : (5,8)
+
+// ovf(lower) ovf(lower) 
+    from = value_type(21);to = value_type(35); // expect [0,8] : (10,35)     
+//    from = value_type(22);to = value_type(35);    
+
         
         
     }
