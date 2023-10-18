@@ -98,6 +98,8 @@ int main() {
         
         auto is_same_pos = btres0.nearest_pos == btres1.nearest_pos; 
         auto is_even = !(btres0.nearest_pos%(sizeof(value_type)*2) ); 
+        
+        // -2 <= directions <= 2  direction==0 is counted as contained. 
         auto directions = btres0.direction+btres1.direction+!btres0.direction+!btres1.direction;
 
         return is_same_pos *(
@@ -185,7 +187,7 @@ int main() {
     }
 
     { // case two block 
-        v.resize(4);diff = 0;
+//        v.resize(4);diff = 0;
 //        from = value_type(0);to = value_type(5); // ovf-ovf(lower) ([0,8] : (0,5))
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(0);to = value_type(30); // ovf-contained ([0,8] : (0,40))
@@ -199,13 +201,13 @@ int main() {
 //        from = value_type(10);to = value_type(25); // exact-vac ([10,25] : (0,8))
 //        from = value_type(15);to = value_type(25); // cont-vac ([10,25] : (0,8))
 //        from = value_type(15);to = value_type(25); // cont-vac ([10,25] : (0,8))
-//        from = value_type(21);to = value_type(25); // vac-vac ([10,25] : (16,24))
+//        from = value_type(21);to = value_type(25); // vac-vac ([21,25] : (16,24))
 //        from = value_type(25);to = value_type(35); // vac-cont ([25,40] : (16,24))
 //        from = value_type(25);to = value_type(40); // vac-exact ([25,40] : (16,24))
 //        from = value_type(25);to = value_type(45); // vac-vac ([25,45] : (16,24))
-//        from = value_type(30);to = value_type(40); // exact-exact ([25,45] : (16,24))
-//        from = value_type(30);to = value_type(45); // cont-vac ([25,45] : (16,24))
-        from = value_type(35);to = value_type(40); // cont-exact ([25,45] : (16,24))
+//        from = value_type(30);to = value_type(40); // exact-exact ([30,40] : (16,24))
+//        from = value_type(30);to = value_type(45); // exact-vac ([30,45] : (16,24))
+//        from = value_type(35);to = value_type(40); // cont-exact ([30,40] : (16,24))
         
         
     }
