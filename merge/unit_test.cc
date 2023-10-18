@@ -147,16 +147,16 @@ int main() {
 //    }
     
     { // case single block
-//        v.resize(2);diff = 0;
-//        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
-//        from = value_type(15);to = value_type(30); // contained-ovf 
-//        from = value_type(0);to = value_type(30); // ovf-ovf   
-//        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
-//        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
-//        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
-//        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
-//        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
-//        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
+        v.resize(2);diff = 0;
+        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
+        from = value_type(15);to = value_type(30); // contained-ovf 
+        from = value_type(0);to = value_type(30); // ovf-ovf   
+        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
+        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
+        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
+        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
+        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
+        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
     }
 
 
@@ -185,7 +185,7 @@ int main() {
     }
 
     { // case two block 
-        v.resize(4);diff = 0;
+//        v.resize(4);diff = 0;
 //        from = value_type(0);to = value_type(5); // ovf-ovf(lower) ([0,8] : (0,5))
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(0);to = value_type(30); // ovf-contained ([0,8] : (0,40))
@@ -199,7 +199,7 @@ int main() {
 //        from = value_type(10);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
 //        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
 //        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
-        from = value_type(21);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
+//        from = value_type(21);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
         
         
     }
@@ -318,9 +318,12 @@ int main() {
                     
                     
                     auto is_same_vacant = bool(cond_section==kSamevacant);
-                    i0.nearest_pos= is_same_vacant*(i0.nearest_pos+sizeof(value_type))+!is_same_vacant*i0.nearest_pos;
-                    i1.nearest_pos= is_same_vacant*(i0.nearest_pos+sizeof(value_type))+!is_same_vacant*i1.nearest_pos;
-                    
+                    i0.nearest_pos= 
+                             !i0.overflow*(is_same_vacant*(i0.nearest_pos+sizeof(value_type))+!is_same_vacant*i0.nearest_pos)
+                             +i0.overflow*i0.nearest_pos;
+                    i1.nearest_pos= 
+                             !i1.overflow*(is_same_vacant*(i0.nearest_pos+sizeof(value_type))+!is_same_vacant*i1.nearest_pos)
+                             +i1.overflow*i1.nearest_pos;
                 }
 
 
