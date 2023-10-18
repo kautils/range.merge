@@ -148,23 +148,23 @@ int main() {
     
     { // case single block
         v.resize(2);diff = 0;
-        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
-        from = value_type(15);to = value_type(30); // contained-ovf 
-        from = value_type(0);to = value_type(30); // ovf-ovf   
-        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
-        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
-        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
-        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
+//        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
+//        from = value_type(15);to = value_type(30); // contained-ovf 
+//        from = value_type(0);to = value_type(30); // ovf-ovf   
+//        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
+//        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
+//        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
+//        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
         from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
-        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
+//        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
     }
 
 
     { // case single block : change the diff
 //        v.resize(2);diff = 1;
-// ovf-contained expect ([0,8] - (0,20)) //todo : miss (1,20)
+// ovf-contained expect ([0,8] - (1,20)) 
 //    from = value_type(1);to = value_type(11); 
-//    from = value_type(1);to = value_type(9); 
+//    from = value_type(1);to = value_type(9); //todo : miss (1,20)
 
 // contained-ovf 
 //    from = value_type(9);to = value_type(21); //expect [0,8] (10,20)
@@ -199,7 +199,8 @@ int main() {
 //        from = value_type(10);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
 //        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
 //        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
-//        from = value_type(21);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
+//        from = value_type(21);to = value_type(25); // ovf-ovf ([10,25] : (16,24))
+//        from = value_type(25);to = value_type(35); // ovf-ovf ([25,40] : (16,24))
         
         
     }
@@ -326,7 +327,13 @@ int main() {
                              +i1.overflow*i1.nearest_pos;
                 }
 
-
+                // adjust pos of i0 when it　belongs to vacant 
+                auto i0_adj_when_vacant =
+                    (2== (!bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction<0)))*(-sizeof(value_type))
+                    +(2==( bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction>0)))*(sizeof(value_type));
+                i0.nearest_pos+=i0_adj_when_vacant;
+                
+                // express squash with i1 
                 i1.nearest_pos-=static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
                 printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
                 printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
