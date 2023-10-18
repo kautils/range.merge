@@ -29,6 +29,7 @@ struct file_syscall_premitive{
 //        return static_cast<offset_type>(st.st_size); 
     }
     
+    
     void read_value(offset_type const& offset, value_type ** value){
         lseek(fd,offset,SEEK_SET);
         ::read(fd,*value,sizeof(value_type));
@@ -81,11 +82,6 @@ int main() {
     };
     
     
-//    auto adjust_pole_position = [](offset_type input_pos,int direction){
-//        
-//        
-//        
-//    };
     
     std::vector<value_type> v;
     for(auto i = 0 ; i < 100; i+=2){
@@ -104,8 +100,9 @@ int main() {
         auto to = value_type(120);
         
         auto bt = kautil::algorithm::btree_search{&pref};
-        auto i0 = bt.search(from);
-        auto i1 = bt.search(to);
+        auto i0 = bt.search(from,false);
+        auto i1 = bt.search(to,false);
+        
         
         auto fsize=  pref.size();
         if(!fsize){
@@ -113,35 +110,72 @@ int main() {
             auto new_block_ptr = &new_block;
             pref.write(0,(void**)&new_block_ptr,sizeof(new_block));
         }else if(fsize == (sizeof(value_type)*2) ){
+
+            auto min_size = 0;
+            auto max_size = pref.size();
+
+            // adjust nearest_pos and nearest_value
             
-            auto c0 = is_contained(i0.neighbor_pos,i0.direction);
-            auto c1 = is_contained(i1.neighbor_pos,i1.direction);
-            
-            
-            //adjust0;
-            if(c0){
-                // d < 0 then -=8
-                // d > 0 then nothing
-                // d = 0 and !(%(sizeof(value_type)*2)) then -=8
-                // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                i0.nearest_pos-=
-                         ( i0.direction<0)*(sizeof(value_type))
-                        +(!i0.direction)*(i0.nearest_pos%(sizeof(value_type)*2))*(sizeof(value_type));
+            { // adjust overflow
+                // if upper overflow then 
+                    // nearest_pos = max_size   
+                    // nearest_value = to
+                
+                // if lower overflow then 
+                    // nearest_pos = mix_size   
+                    // nearest_value = from
+                
+                i0.nearest_pos = 
+                          i0.overflow*((i0.direction > 0)*max_size + (i0.direction < 0)*min_size)
+                        +!i0.overflow*i0.nearest_pos;
+                i0.nearest_value = 
+                          i0.overflow*((i0.direction > 0)*to + (i0.direction < 0)*from)
+                        +!i0.overflow*i0.nearest_value;
+                
+                i1.nearest_pos = 
+                          i1.overflow*((i1.direction > 0)*max_size + (i1.direction < 0)*min_size)
+                        +!i1.overflow*i1.nearest_pos;
+                i1.nearest_value = 
+                          i1.overflow*((i1.direction > 0)*to + (i0.direction < 0)*from)
+                        +!i1.overflow*i1.nearest_value;
             }
             
-            //adjust1;
-            if(c1){
-                // d < 0 then +=8
-                // d > 0 then nothing
-                // d = 0 and !(%(sizeof(value_type)*2)) then +=8
-                // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                i1.nearest_pos+=
-                         ( i1.direction>0)*(sizeof(value_type))
-                        +(!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2))*(sizeof(value_type));
+            
+            {
+                // if overflow then is_contained is always false
+                auto c0 = !i0.overflow * is_contained(i0.nearest_pos,i0.direction);
+                auto c1 = !i1.overflow * is_contained(i1.nearest_pos,i1.direction);
+                
+                //adjust0;
+                if(c0){
+                    // d < 0 then -=8
+                    // d > 0 then nothing
+                    // d = 0 and !(%(sizeof(value_type)*2)) then -=8
+                    // d = 0 and (%(sizeof(value_type)*2)) then nothing
+                    i0.nearest_pos-= static_cast<offset_type>(
+                                 bool(i0.direction<0)*(sizeof(value_type))
+                                +(!i0.direction)*(i0.nearest_pos%(sizeof(value_type)*2))*(sizeof(value_type))
+                            );
+                }
+                
+                //adjust1;
+                if(c1){
+                    // d < 0 then +=8
+                    // d > 0 then nothing
+                    // d = 0 and !(%(sizeof(value_type)*2)) then +=8
+                    // d = 0 and (%(sizeof(value_type)*2)) then nothing
+                    i1.nearest_pos+= static_cast<offset_type>(
+                                 bool( i1.direction>0)*(sizeof(value_type))
+                                +(!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2))*(sizeof(value_type))
+                            );
+                }
             }
             
             
             
+            
+        }else{
+            // wrong file
         }
         
     }
