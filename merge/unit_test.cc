@@ -155,7 +155,8 @@ int main() {
 //        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
 //        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
 //        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
-        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
+//        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
+        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
         
     }
 
@@ -165,6 +166,7 @@ int main() {
 //        from = value_type(1);to = value_type(11); // ovf-contained ([0,8] - (0,20))
 //        from = value_type(1);to = value_type(9); // ovf-contained ([0,8] - (0,20))
 //        from = value_type(2);to = value_type(8); // ovf-contained ([0,8] - (0,20))
+//        from = value_type(3);to = value_type(7); // ovf(lower)-ovf(lower) ([0,8] - (3,7))
         
         
     }
@@ -192,9 +194,7 @@ int main() {
         auto i1_is_diff_adjust = is_adjust_diff(i1,diff,to);
         i1.direction*=!i1_is_diff_adjust;
         i1.overflow*=!i1_is_diff_adjust;
-        
-        
-        
+
         constexpr auto kSameBlock = 1,kDifferent = 0,kSamevacant = -1;
         auto cond_section = is_same_section(i0,i1);
         if(0==(!is_ordered+!(kSameBlock !=cond_section))){ 
@@ -228,6 +228,16 @@ int main() {
                     
                     i1.nearest_pos = adjust_np_ovf(i1,pos_min,pos_max);
                     i1.nearest_value = i1.overflow*to + !i1.overflow*i1.nearest_value; 
+                    
+                    auto is_ovf_ovf_upper = (2==(i0.overflow+(i0.direction>0))); 
+                    auto is_ovf_ovf_lower = (2==(i1.overflow+(i1.direction<0))); 
+                    auto is_ovf_ovf = bool(is_ovf_ovf_upper+is_ovf_ovf_lower);
+                    i0.nearest_pos=is_ovf_ovf_upper*fsize +!is_ovf_ovf_upper*i0.nearest_pos;  
+                    i0.nearest_pos=/*is_ovf_ovf_lower*0+*/ !is_ovf_ovf_lower*i0.nearest_pos;  
+                    i1.nearest_pos=static_cast<offset_type>(
+                              is_ovf_ovf*(i0.nearest_pos+sizeof(value_type))
+                            +!is_ovf_ovf*i1.nearest_pos
+                            );
                 }
                 
                 
