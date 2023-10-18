@@ -74,6 +74,8 @@ int main() {
     using value_type = uint64_t;
     using offset_type = long;
 
+    
+    //@note not used
     auto is_contained = [](offset_type pos , int direction){
         return bool(
             !direction
@@ -146,9 +148,12 @@ int main() {
     { // case single block
         v.resize(2);
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] - (0,20))
-        from = value_type(15);to = value_type(30); // contained-ovf 
+//        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
 //        from = value_type(10);to = value_type(20); // contained contained (exact-exact)   
+//        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
+//        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
+//        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
     }
     
     
