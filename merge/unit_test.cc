@@ -266,7 +266,7 @@ int main() {
                     //auto c0_is_contained = bool(!i0.overflow * is_contained(i0.nearest_pos,i0.direction));
                     auto c0_adj_pos = -sizeof(value_type); 
                     auto c0_cond_d =i0.direction<0; 
-                    auto c0_cond_dzero = 2==(!i0.direction+(i0.nearest_pos%(sizeof(value_type)*2) ));
+                    auto c0_cond_dzero = 2==(!i0.direction+bool(i0.nearest_pos%(sizeof(value_type)*2) ));
                     auto c0_is_contained_adjust = !i0.overflow*(c0_cond_d+c0_cond_dzero); 
                     if(c0_is_contained_adjust){
                         i0.nearest_pos+=static_cast<offset_type>(c0_adj_pos);
@@ -281,7 +281,7 @@ int main() {
                         // d = 0 and (%(sizeof(value_type)*2)) then +=8
                     auto c1_adj_pos = sizeof(value_type); 
                     auto c1_cond_d =i1.direction>0; 
-                    auto c1_cond_dzero = 2==(!i1.direction+!(i1.nearest_pos%(sizeof(value_type)*2) ));
+                    auto c1_cond_dzero = 2==(!i1.direction+!bool(i1.nearest_pos%(sizeof(value_type)*2) ));
                     auto c1_is_contained_adjust = !i1.overflow*(c1_cond_d+c1_cond_dzero); 
                     if(c1_is_contained_adjust){
                         i1.nearest_pos+=static_cast<offset_type>(c1_adj_pos);
