@@ -147,7 +147,7 @@ int main() {
 //    }
     
     { // case single block
-        v.resize(2);diff = 0;
+//        v.resize(2);diff = 0;
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
@@ -155,20 +155,20 @@ int main() {
 //        from = value_type(10);to = value_type(15); // contained contained (exact-inside)   
 //        from = value_type(15);to = value_type(20); // contained contained (inside-exact)   
 //        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
-        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
+//        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
 //        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
     }
 
 
     { // case single block : change the diff
-//        v.resize(2);diff = 1;
+        v.resize(2);diff = 1;
 // ovf-contained expect ([0,8] - (1,20)) 
 //    from = value_type(1);to = value_type(11); 
 //    from = value_type(1);to = value_type(9); //todo : miss (1,20)
 
 // contained-ovf 
 //    from = value_type(9);to = value_type(21); //expect [0,8] (10,20)
-//    from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
+    from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
         
 // contained contained (inside-exact) 
 //    from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
@@ -262,17 +262,8 @@ int main() {
                     i0.nearest_value = i0.overflow*from + !i0.overflow*i0.nearest_value; 
                     
                     i1.nearest_pos = adjust_np_ovf(i1,pos_min,pos_max);
-                    i1.nearest_value = i1.overflow*to + !i1.overflow*i1.nearest_value; 
-                    
-                    auto is_ovf_ovf_upper = (2==(i0.overflow+(i0.direction>0))); 
-                    auto is_ovf_ovf_lower = (2==(i1.overflow+(i1.direction<0))); 
-                    auto is_ovf_ovf = bool(is_ovf_ovf_upper+is_ovf_ovf_lower);
-                    i0.nearest_pos=is_ovf_ovf_upper*fsize +!is_ovf_ovf_upper*i0.nearest_pos;  
-                    i0.nearest_pos=/*is_ovf_ovf_lower*0+*/ !is_ovf_ovf_lower*i0.nearest_pos;  
-                    i1.nearest_pos=static_cast<offset_type>(
-                              is_ovf_ovf*(i0.nearest_pos+sizeof(value_type))
-                            +!is_ovf_ovf*i1.nearest_pos
-                            );
+                    i1.nearest_value = i1.overflow*to + !i1.overflow*i1.nearest_value;
+
                 }
                 
                 
@@ -332,9 +323,22 @@ int main() {
                     (2== (!bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction<0)))*(-sizeof(value_type))
                     +(2==( bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction>0)))*(sizeof(value_type));
                 i0.nearest_pos+=i0_adj_when_vacant;
-                
                 // express squash with i1 
                 i1.nearest_pos-=static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
+                
+                
+                {// adjust when ovf_ovf
+                    auto is_ovf_ovf_upper = (2==(i0.overflow+(i0.direction>0))); 
+                    auto is_ovf_ovf_lower = (2==(i1.overflow+(i1.direction<0))); 
+                    auto is_ovf_ovf = bool(is_ovf_ovf_upper+is_ovf_ovf_lower);
+                    i0.nearest_pos=is_ovf_ovf_upper*fsize +!is_ovf_ovf_upper*i0.nearest_pos;  
+                    i0.nearest_pos=/*is_ovf_ovf_lower*0+*/ !is_ovf_ovf_lower*i0.nearest_pos;  
+                    i1.nearest_pos=static_cast<offset_type>(
+                              is_ovf_ovf*(i0.nearest_pos+sizeof(value_type))
+                            +!is_ovf_ovf*i1.nearest_pos
+                            );
+                }
+                
                 printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
                 printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
                 
