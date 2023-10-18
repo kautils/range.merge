@@ -81,6 +81,46 @@ int main() {
         );
     };
     
+
+    auto is_same_section = [](auto btres0,auto btres1){
+        
+        // if  nearest_pos is same, then
+            // return -1 (case in the same vacant)
+                // 1) !nearest_pos % 16 &&  both direction < 0
+                // 2) nearest_pos % 16 &&  both direction > 0
+            // return 1 (case in the same block)
+                // 1) !nearest_pos % 16 &&  both direction > 0
+                // 2) nearest_pos % 16 &&  both direction < 0
+        // otherwise return 0 (two exist in different block) 
+        
+        auto is_same_pos = btres0.nearest_pos == btres1.nearest_pos; 
+        auto is_odd = !(btres0.nearest_pos%sizeof(value_type)); 
+        auto directions = btres0.direction+btres1.direction;
+
+        return is_same_pos *(
+              bool((is_odd * directions==-2) +(!is_odd * directions==2))*-1  
+            + bool( is_odd * directions==2 +!is_odd * directions==-2)*1  
+        );
+    };
+    
+    
+                    
+    auto adjust_np_ovf = [](auto & i0,auto pos_min,auto pos_max){
+            // if upper overflow then nearest_pos = max_size   
+            // if lower overflow then nearest_pos = mix_size   
+            return 
+                  i0.overflow*((i0.direction > 0)*pos_max + (i0.direction < 0)*pos_min)
+                +!i0.overflow*i0.nearest_pos;
+    };
+    
+    auto adjust_nv_ovf = [](auto & i0,auto from,auto to){
+            // if upper overflow then nearest_value = to
+            // if lower overflow then nearest_value = from
+            return 
+                  i0.overflow*((i0.direction > 0)*to + (i0.direction < 0)*from)
+                +!i0.overflow*i0.nearest_value;
+    };
+    
     
     
     std::vector<value_type> v;
@@ -104,75 +144,64 @@ int main() {
         auto i1 = bt.search(to,false);
         
         
-        auto fsize=  pref.size();
-        if(!fsize){
-            value_type new_block[2]= {from,to};
-            auto new_block_ptr = &new_block;
-            pref.write(0,(void**)&new_block_ptr,sizeof(new_block));
-        }else if(fsize == (sizeof(value_type)*2) ){
-
-            auto min_size = 0;
-            auto max_size = pref.size();
-
-            // adjust nearest_pos and nearest_value
-            
-            { // adjust overflow
-                // if upper overflow then 
-                    // nearest_pos = max_size   
-                    // nearest_value = to
+        if(auto cond_section = is_same_section(i0,i1)){ 
+            // newly add element to memory or file
+            auto is_claim_region = -1==cond_section;  
+            auto fsize=  pref.size();
+            if(!fsize){
+                value_type new_block[2]= {from,to};
+                auto new_block_ptr = &new_block;
+                pref.write(0,(void**)&new_block_ptr,sizeof(new_block));
+            }else if(fsize == (sizeof(value_type)*2) ){
+    
+                auto min_size = 0;
+                auto max_size = pref.size();
+    
+                // adjust nearest_pos and nearest_value
                 
-                // if lower overflow then 
-                    // nearest_pos = mix_size   
-                    // nearest_value = from
-                
-                i0.nearest_pos = 
-                          i0.overflow*((i0.direction > 0)*max_size + (i0.direction < 0)*min_size)
-                        +!i0.overflow*i0.nearest_pos;
-                i0.nearest_value = 
-                          i0.overflow*((i0.direction > 0)*to + (i0.direction < 0)*from)
-                        +!i0.overflow*i0.nearest_value;
-                
-                i1.nearest_pos = 
-                          i1.overflow*((i1.direction > 0)*max_size + (i1.direction < 0)*min_size)
-                        +!i1.overflow*i1.nearest_pos;
-                i1.nearest_value = 
-                          i1.overflow*((i1.direction > 0)*to + (i0.direction < 0)*from)
-                        +!i1.overflow*i1.nearest_value;
-            }
-            
-            
-            {
-                // if overflow then is_contained is always false
-                auto c0 = !i0.overflow * is_contained(i0.nearest_pos,i0.direction);
-                auto c1 = !i1.overflow * is_contained(i1.nearest_pos,i1.direction);
-                
-                //adjust0;
-                if(c0){
-                    // d < 0 then -=8
-                    // d > 0 then nothing
-                    // d = 0 and !(%(sizeof(value_type)*2)) then -=8
-                    // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                    i0.nearest_pos-= static_cast<offset_type>(
-                                 bool(i0.direction<0)*(sizeof(value_type))
-                                +(!i0.direction)*(i0.nearest_pos%(sizeof(value_type)*2))*(sizeof(value_type))
-                            );
+                { // adjust overflow
+                    // if upper overflow then 
+                        // nearest_pos = max_size   
+                        // nearest_value = to
+                    
+                    // if lower overflow then 
+                        // nearest_pos = mix_size   
+                        // nearest_value = from
+                    
+                    i0.nearest_pos = adjust_np_ovf(i0,min_size,max_size);
+                    i1.nearest_pos = adjust_np_ovf(i1,min_size,max_size);
+                    
+                    i0.nearest_value = adjust_nv_ovf(i0,from,to);
+                    i1.nearest_value = adjust_nv_ovf(i1,from,to);
                 }
                 
-                //adjust1;
-                if(c1){
-                    // d < 0 then +=8
-                    // d > 0 then nothing
-                    // d = 0 and !(%(sizeof(value_type)*2)) then +=8
-                    // d = 0 and (%(sizeof(value_type)*2)) then nothing
-                    i1.nearest_pos+= static_cast<offset_type>(
-                                 bool( i1.direction>0)*(sizeof(value_type))
-                                +(!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2))*(sizeof(value_type))
-                            );
+                
+                {
+                    // if c0 is contained and 
+                        // d < 0 then -=8
+                        // d > 0 then nothing
+                        // d = 0 and !(%(sizeof(value_type)*2)) then -=8
+                        // d = 0 and (%(sizeof(value_type)*2)) then nothing
+                    auto c0_is_contained = !i0.overflow * is_contained(i0.nearest_pos,i0.direction);
+                    auto c0_cond_d = i1.direction<0;
+                    auto c0_cond_zero = (!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2));
+                    auto c0_adj_pos = -sizeof(value_type); 
+                    i1.nearest_pos+= static_cast<offset_type>(c0_is_contained*(c0_cond_d+c0_cond_zero)*c0_adj_pos);
+                    
+                    // if c1 is contained and 
+                        // d < 0 then +=8
+                        // d > 0 then nothing
+                        // d = 0 and !(%(sizeof(value_type)*2)) then +=8
+                        // d = 0 and (%(sizeof(value_type)*2)) then nothing
+                    auto c1_is_contained = !i1.overflow * is_contained(i1.nearest_pos,i1.direction);
+                    auto c1_cond_d = i1.direction>0;
+                    auto c1_cond_zero = (!i1.direction)*!(i1.nearest_pos%(sizeof(value_type)*2));
+                    auto c1_adj_pos = sizeof(value_type); 
+                    i1.nearest_pos+= static_cast<offset_type>( c1_is_contained*(c1_cond_d+c1_cond_zero)*c1_adj_pos);
+                    
                 }
             }
-            
-            
-            
+
             
         }else{
             // wrong file
