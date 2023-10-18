@@ -116,23 +116,6 @@ int main() {
                 +!i0.overflow*i0.nearest_pos;
     };
     
-//    auto adjust_nv_ovf = [](auto & i0,auto input){
-//            // if upper overflow then nearest_value = to
-//            // if lower overflow then nearest_value = from
-//            return 
-//                  i0.overflow*input
-//                +!i0.overflow*i0.nearest_value;
-//    };
-    
-//    auto adjust_nv_ovf = [](auto & i0,auto from,auto to){
-//            // if upper overflow then nearest_value = to
-//            // if lower overflow then nearest_value = from
-//            return 
-//                  i0.overflow*((i0.direction > 0)*to + (i0.direction < 0)*from)
-//                +!i0.overflow*i0.nearest_value;
-//    };
-//    
-    
     // adjust direction with specified diff
     auto is_adjust_diff = [](auto i0,auto diff,auto input){
         auto i0_diff=
