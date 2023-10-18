@@ -147,7 +147,7 @@ int main() {
 //    }
     
     { // case single block
-        v.resize(2);diff = 0;
+//        v.resize(2);diff = 0;
 //        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
 //        from = value_type(15);to = value_type(30); // contained-ovf 
 //        from = value_type(0);to = value_type(30); // ovf-ovf   
@@ -157,19 +157,18 @@ int main() {
 //        from = value_type(15);to = value_type(17); // contained contained (inside-inside)   
 //        from = value_type(5);to = value_type(9); // ovf(lower) ovf(lower) expect [0,8] : (5,9)   
 //        from = value_type(31);to = value_type(35); // ovf(lower) ovf(lower) expect [16,24] : (31,35)   
-        
     }
 
 
     { // case single block : change the diff
-        v.resize(2);diff = 1;
+//        v.resize(2);diff = 1;
 // ovf-contained expect ([0,8] - (0,20))
 //    from = value_type(1);to = value_type(11); 
 //    from = value_type(1);to = value_type(9); 
 
-// contained-ovf expect [0,8] (10,20)
-//    from = value_type(9);to = value_type(21);
-//    from = value_type(8);to = value_type(22);   
+// contained-ovf 
+//    from = value_type(9);to = value_type(21); //expect [0,8] (10,20)
+//    from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
         
 // contained contained (inside-exact) 
 //    from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
@@ -180,9 +179,16 @@ int main() {
 //    from = value_type(5);to = value_type(8); //expect [0,8] : (5,8)
 
 // ovf(lower) ovf(lower) 
-    from = value_type(21);to = value_type(35); // expect [0,8] : (10,35)     
-//    from = value_type(22);to = value_type(35);    
+//    from = value_type(21);to = value_type(35); // expect [0,8] : (10,35)     
+//    from = value_type(22);to = value_type(35); // expect [16,24] : (22,35)
 
+    }
+
+    { // case two block 
+        v.resize(4);diff = 0;
+//        from = value_type(0);to = value_type(10); // ovf-contained ([0,8] : (0,20))
+//        from = value_type(0);to = value_type(30); // ovf-contained ([0,8] : (0,40))
+//        from = value_type(10);to = value_type(30); // ovf-contained ([0,8] : (10,40))
         
         
     }
@@ -222,7 +228,8 @@ int main() {
                 value_type new_block[2]= {from,to};
                 auto new_block_ptr = &new_block;
                 pref.write(0,(void**)&new_block_ptr,sizeof(*new_block));
-            }else if(0==(!is_ordered+!(fsize == (sizeof(value_type)*2))) ){
+//            }else if(0==(!is_ordered+!(fsize == (sizeof(value_type)*2))) ){
+            }else if(2==(is_ordered+!(fsize % (sizeof(value_type)*2))) ){
     
                 auto pos_min = 0;
                 auto pos_max = pref.size()-sizeof(value_type);
@@ -289,9 +296,13 @@ int main() {
                         pref.read_value(i1.nearest_pos,&ptr);
                     }
                 }
-                
+
+
+                i1.nearest_pos-=static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
                 printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
                 printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
+                
+                
                 
             }else{
                 printf("else\n",fsize);
