@@ -145,13 +145,8 @@ int main() {
     
     { // case single block
         v.resize(2);
-        // case zero : correct
-        // from = value_type(10);
-        // to = value_type(100);
-
-        // case zero : wrong
-        from = value_type(0);
-        to = value_type(10);
+        //from = value_type(0);to = value_type(10);
+        from = value_type(15);to = value_type(30);
     }
     
     
@@ -185,9 +180,10 @@ int main() {
                 pref.write(0,(void**)&new_block_ptr,sizeof(*new_block));
             }else if(0==(!is_ordered+!(fsize == (sizeof(value_type)*2))) ){
     
-                auto min_size = 0;
-                auto max_size = pref.size();
-    
+                auto pos_min = 0;
+                auto pos_max = pref.size()-sizeof(value_type);
+                
+                
                 // adjust nearest_pos and nearest_value
                 
                 { // adjust overflow
@@ -199,8 +195,8 @@ int main() {
                         // nearest_pos = mix_size   
                         // nearest_value = from
                     
-                    i0.nearest_pos = adjust_np_ovf(i0,min_size,max_size);
-                    i1.nearest_pos = adjust_np_ovf(i1,min_size,max_size);
+                    i0.nearest_pos = adjust_np_ovf(i0,pos_min,pos_max);
+                    i1.nearest_pos = adjust_np_ovf(i1,pos_min,pos_max);
                     
                     i0.nearest_value = adjust_nv_ovf(i0,from,to);
                     i1.nearest_value = adjust_nv_ovf(i1,from,to);
