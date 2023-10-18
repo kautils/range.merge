@@ -97,12 +97,12 @@ int main() {
         // otherwise return 0 (two exist in different block) 
         
         auto is_same_pos = btres0.nearest_pos == btres1.nearest_pos; 
-        auto is_odd = !(btres0.nearest_pos%(sizeof(value_type)*2) ); 
-        auto directions = btres0.direction+btres1.direction;
+        auto is_even = !(btres0.nearest_pos%(sizeof(value_type)*2) ); 
+        auto directions = btres0.direction+btres1.direction+!btres0.direction+!btres1.direction;
 
         return is_same_pos *(
-              bool((is_odd * directions==-2) +(!is_odd * directions==2))*-1  
-            + bool( is_odd * directions==2 +!is_odd * directions==-2)*1  
+              bool((is_even * directions==-2) +(!is_even * directions==2))*-1  
+            + bool( is_even * directions==2 +!is_even * directions==-2)*1  
         );
     };
     
@@ -192,15 +192,20 @@ int main() {
 //        from = value_type(0);to = value_type(50); // ovf-ovf ([0,8] : (0,50))
 //        from = value_type(45);to = value_type(50); // ovf-ovf ([32,40] : (45,50))
 //        
-//        from = value_type(10);to = value_type(15); // ovf-ovf ([10,20] : (0,8))
-//        from = value_type(12);to = value_type(15); // ovf-ovf ([10,20] : (0,8))
-//        from = value_type(10);to = value_type(20); // ovf-ovf ([10,20] : (0,8))
-//        from = value_type(12);to = value_type(18); // ovf-ovf ([10,20] : (0,8))
-//        from = value_type(10);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
-//        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
-//        from = value_type(15);to = value_type(25); // ovf-ovf ([10,25] : (0,8))
-//        from = value_type(21);to = value_type(25); // ovf-ovf ([10,25] : (16,24))
-        from = value_type(25);to = value_type(35); // ovf-ovf ([25,40] : (16,24))
+//        from = value_type(10);to = value_type(15); // exact-cont ([10,20] : (0,8))
+//        from = value_type(12);to = value_type(15); // cont-cont ([10,20] : (0,8))
+//        from = value_type(10);to = value_type(20); // exact-exact ([10,20] : (0,8))
+//        from = value_type(12);to = value_type(18); // cont-cont ([10,20] : (0,8))
+//        from = value_type(10);to = value_type(25); // exact-vac ([10,25] : (0,8))
+//        from = value_type(15);to = value_type(25); // cont-vac ([10,25] : (0,8))
+//        from = value_type(15);to = value_type(25); // cont-vac ([10,25] : (0,8))
+//        from = value_type(21);to = value_type(25); // vac-vac ([10,25] : (16,24))
+//        from = value_type(25);to = value_type(35); // vac-cont ([25,40] : (16,24))
+//        from = value_type(25);to = value_type(40); // vac-exact ([25,40] : (16,24))
+//        from = value_type(25);to = value_type(45); // vac-vac ([25,45] : (16,24))
+//        from = value_type(30);to = value_type(40); // exact-exact ([25,45] : (16,24))
+//        from = value_type(30);to = value_type(45); // cont-vac ([25,45] : (16,24))
+        from = value_type(35);to = value_type(40); // cont-exact ([25,45] : (16,24))
         
         
     }
