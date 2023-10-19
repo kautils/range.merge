@@ -128,8 +128,7 @@ int test() { // testing for practice
     m.exec(145,150);  
     m.exec(155,160);  
     m.exec(5,11);  
-    
-    m.exec(1,3); // todo : wrong
+    m.exec(1,3);
 
     debug_out_file<value_type,offset_type>(stdout,fd,0,1000);
     
@@ -157,10 +156,10 @@ int test1() { // testing each
     auto to = value_type(0);
 
 
-//    { // case single block
-//        v.resize(2);
-//            diff = value_type(0);
-//            from = value_type(0);to = value_type(10);
+    { // case single block
+        v.resize(2);
+            diff = value_type(0);
+            from = value_type(0);to = value_type(10);
 //            from = value_type(15);to = value_type(30);
 //            from = value_type(0);to = value_type(30);
 //            from = value_type(10);to = value_type(20);
@@ -169,16 +168,16 @@ int test1() { // testing each
 //            from = value_type(15);to = value_type(17); 
 //            from = value_type(5);to = value_type(9);
 //            from = value_type(31);to = value_type(35);
-//    }
+    }
 
-    {
-        v.resize(2);
-        diff = 1;
-     //ovf-contained expect ([0,8] - (1,20)) 
+//    {
+//        v.resize(2);
+//        diff = 1;
+//     //ovf-contained expect ([0,8] - (1,20)) 
 //        from = value_type(1);to = value_type(11); 
-        from = value_type(1);to = value_type(9);  
+//        from = value_type(1);to = value_type(9);  
 //    // contained-ovf 
-//        from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  
+//        from = value_type(9);to = value_type(21); //expect [0,8] (9,21)    
 //        from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
 //    // contained contained (inside-exact) 
 //        from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
@@ -190,7 +189,7 @@ int test1() { // testing each
 //    // ovf(lower) ovf(lower) 
 //        from = value_type(21);to = value_type(35); // expect [0,8] : (10,35)     
 //        from = value_type(22);to = value_type(35); // expect [16,24] : (22,35)
-    }
+//    }
 
 
 //    { // case two block 
@@ -217,7 +216,7 @@ int test1() { // testing each
 //        from = value_type(35);to = value_type(45); // cont-vac ([30,45] : (16,24))
 //        from = value_type(45);to = value_type(50); // vac-vac ([45,50] : (32,40))
 //    }
-//    
+
 //    { // case three block 
 //        v.resize(6);diff = 0;
 //        from = value_type(0);to = value_type(10); // ovf-exact ([0,8] : (0,20))
@@ -267,8 +266,8 @@ int test1() { // testing each
 
 
 int main() {
-    return test1();
-//    return test();
+//    return test1();
+    return test();
 }
 
 #endif
