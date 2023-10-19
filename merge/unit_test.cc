@@ -47,7 +47,10 @@ struct file_syscall_premitive{
         return size==::read(fd,*data,size);
     }
     
-    bool extend(offset_type extend_size){ fstat(fd,&st); return !ftruncate(fd,st.st_size+extend_size);   }
+    bool extend(offset_type extend_size){ 
+        fstat(fd,&st); 
+        return !ftruncate(fd,st.st_size+extend_size);   
+    }
     int shift(offset_type dst,offset_type src,offset_type size){
         if(buffer_size < size){
             if(buffer)free(buffer);
@@ -207,11 +210,11 @@ int main() {
     { // case single block : change the diff
 //        v.resize(2);diff = 1;
 // ovf-contained expect ([0,8] - (1,20)) 
-//    from = value_type(1);to = value_type(11); 
-//    from = value_type(1);to = value_type(9); //todo : miss (1,20)
+//    from = value_type(1);to = value_type(11);  // todo  miss : [0,8] - (1,20)
+//    from = value_type(1);to = value_type(9); 
 
 // contained-ovf 
-//    from = value_type(9);to = value_type(21); //expect [0,8] (10,20)
+//    from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  todo  miss : [0,8] - (9,21) 
 //    from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
         
 // contained contained (inside-exact) 
@@ -256,8 +259,8 @@ int main() {
     
     
     { // case three block 
-        v.resize(6);diff = 0;
-        from = value_type(0);to = value_type(10); // ovf-exact ([0,8] : (0,20))
+//        v.resize(6);diff = 0;
+//        from = value_type(0);to = value_type(10); // ovf-exact ([0,8] : (0,20))
 //        from = value_type(0);to = value_type(60); // ovf-exact ([0,8] : (0,60))
 //        from = value_type(0);to = value_type(65); // ovf-ovf ([0,8] : (0,65))
 //        from = value_type(0);to = value_type(55); // ovf-cont ([0,8] : (0,60))
@@ -327,7 +330,7 @@ int main() {
 //            }else if(0==(!is_ordered+!(fsize == (sizeof(value_type)*2))) ){
             }else if(2==(is_ordered+!(fsize % (sizeof(value_type)*2))) ){
     
-                auto squash_to=offset_type(0),squash_from=offset_type(0);
+                auto squash_src=offset_type(0),squash_length=offset_type(0);
                 auto pos_min = 0;
                 auto pos_max = pref.size()-sizeof(value_type);
                 
@@ -410,14 +413,15 @@ int main() {
                 i0.nearest_pos+=!i0.overflow*i0_adj_when_vacant;
                 
                 // express squash with i1 
-                squash_to = i1.nearest_pos; 
-                i1.nearest_pos-=static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
-                squash_from = i1.nearest_pos+sizeof(value_type); 
+                squash_src = i1.nearest_pos; 
+                squash_length = static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
+                i1.nearest_pos-=squash_length;
+                //i1.nearest_pos-=static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
                 
                 
+                auto is_ovf_ovf_upper = (2==(i0.overflow+(i0.direction>0))); 
+                auto is_ovf_ovf_lower = (2==(i1.overflow+(i1.direction<0))); 
                 {// adjust when ovf_ovf
-                    auto is_ovf_ovf_upper = (2==(i0.overflow+(i0.direction>0))); 
-                    auto is_ovf_ovf_lower = (2==(i1.overflow+(i1.direction<0))); 
                     auto is_ovf_ovf = bool(is_ovf_ovf_upper+is_ovf_ovf_lower);
                     i0.nearest_pos=is_ovf_ovf_upper*fsize +!is_ovf_ovf_upper*i0.nearest_pos;  
                     i0.nearest_pos=/*is_ovf_ovf_lower*0+*/ !is_ovf_ovf_lower*i0.nearest_pos;  
@@ -432,21 +436,24 @@ int main() {
                 printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
                 
                 
+                constexpr auto kBuffer = offset_type(512);
                 if(is_claim_region){
-                    printf("claim region\n");
+                    auto claim_size = is_ovf_ovf_upper*(fsize-sizeof(value_type));
+                    auto claim_res = kautil::region{&pref}.claim(claim_size,sizeof(value_type)*2,kBuffer);
+                    //printf("claim region (src,length)(%ld,%ld) : return(%d)\n",claim_res,claim_size,sizeof(value_type)*2);
                 }else{ // squash
-                    printf("need not to claim region\n");
-                    printf("squash (from,to)(%lld,%lld)\n",squash_from,squash_to);fflush(stdout);
-                    kautil::region{&pref}.shrink(squash_from,squash_to,512);
-                    {
-                        auto i0_ptr = &i0.nearest_value;
-                        pref.write(i0.nearest_pos,(void**)&i0_ptr,sizeof(value_type));
-                    }
-    
-                    {
-                        auto i1_ptr = &i1.nearest_value;
-                        pref.write(i1.nearest_pos,(void**)&i1_ptr,sizeof(value_type));
-                    }
+                    auto shrink_res = kautil::region{&pref}.shrink(squash_src,squash_length,kBuffer);
+                    //printf("squash (src,length)(%ld,%ld) return(%d)\n",squash_length,squash_src,shrink_res);
+                }
+                
+                {
+                    auto i0_ptr = &i0.nearest_value;
+                    pref.write(i0.nearest_pos,(void**)&i0_ptr,sizeof(value_type));
+                }
+
+                {
+                    auto i1_ptr = &i1.nearest_value;
+                    pref.write(i1.nearest_pos,(void**)&i1_ptr,sizeof(value_type));
                 }
                 
                 
