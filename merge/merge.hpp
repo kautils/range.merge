@@ -16,6 +16,10 @@
 #include <unistd.h>
 
 
+namespace kautil{
+namespace range{
+
+
 template<typename preference>
 struct merge{
     
@@ -282,28 +286,38 @@ struct merge{
 };
 
 
+} //namespace range{
+} //namespace kautil{
+
+
 int temp() { // testing for practice
     using value_type = uint64_t;
     using offset_type = long;
     auto f = fopen("merge.cache","w+b");
     auto fd = fileno(f);
     auto pref = file_syscall_premitive<value_type>{.fd=fileno(f)};
-    auto m = merge{&pref};
+    auto m = kautil::range::merge{&pref};
     m.set_diff(1);
     m.exec(10,20);  
     m.exec(15,25);  
-    m.exec(5,25);  
-    m.exec(2,31);  
-    m.exec(0,100);  
+//    m.exec(5,25);  
+//    m.exec(2,31);  
+//    m.exec(0,100);  
     m.exec(105,110);  
     m.exec(115,120);  
-    m.exec(0,125);  
+//    m.exec(0,125);  
     m.exec(126,127);  
     m.exec(129,131);  
     m.exec(132,133);  
     m.exec(135,138);  
     m.exec(140,142);  
     m.exec(134,142);  
+    m.exec(61,135);  
+    m.exec(145,150);  
+    m.exec(155,160);  
+    m.exec(5,11);  
+    m.exec(1,3);  
+    
     
     fclose(f);
 
@@ -427,7 +441,7 @@ int temp1() { // testing each
     auto ws = fwrite(v.data(),sizeof(value_type),v.size(),f);fflush(f);
     auto fd = fileno(f);
     auto pref = file_syscall_premitive<value_type>{.fd=fileno(f)};
-    auto m = merge{&pref};
+    auto m =kautil::range::merge{&pref};
     m.set_diff(diff);
     m.exec(from,to); // 0,20 => cont-overflow expect [0,8] (0,30) 
     fclose(f);
