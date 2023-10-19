@@ -29,17 +29,19 @@ struct merge{
     
     preference * pref;
     value_type diff = value_type(1);
+    offset_type buffer_size = offset_type(512);
     merge(preference * pref) : pref(pref){}
     ~merge(){}
     
+    void set_buffer_size(offset_type v){ buffer_size = v; }
     void set_diff(value_type v){ diff = v; }
     int exec(value_type from,value_type to){
         
         auto is_contained = [](offset_type pos , int direction)->bool{
             return bool(
                 !direction
-                +(2 == ( bool(pos % 16)  + (direction<0)))
-                +(2 == (!bool(pos % 16) + (direction>0)))
+                +(2 == ( bool(pos % sizeof(value_type)*2)  + (direction<0)))
+                +(2 == (!bool(pos % sizeof(value_type)*2) + (direction>0)))
             );
         };
         
@@ -232,13 +234,13 @@ struct merge{
                 printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
                 
                 
-                constexpr auto kBuffer = offset_type(512);
+//                constexpr auto kBuffer = offset_type(512);
                 if(is_claim_region){
                     auto claim_size = is_ovf_ovf_upper*(fsize-sizeof(value_type));
-                    auto claim_res = kautil::region{pref}.claim(claim_size,sizeof(value_type)*2,kBuffer);
+                    auto claim_res = kautil::region{pref}.claim(claim_size,sizeof(value_type)*2,buffer_size);
                     //printf("claim region (src,length)(%ld,%ld) : return(%d)\n",claim_res,claim_size,sizeof(value_type)*2);
                 }else{ // squash
-                    auto shrink_res = kautil::region{pref}.shrink(squash_src,squash_length,kBuffer);
+                    auto shrink_res = kautil::region{pref}.shrink(squash_src,squash_length,buffer_size);
                     //printf("squash (src,length)(%ld,%ld) return(%d)\n",squash_length,squash_src,shrink_res);
                 }
                 
