@@ -12,7 +12,7 @@ set(module_name merge)
 unset(srcs)
 file(GLOB srcs ${CMAKE_CURRENT_LIST_DIR}/*.cc)
 set(${module_name}_common_pref
-    MODULE_PREFIX kautil cache
+    MODULE_PREFIX kautil range
     MODULE_NAME ${module_name}
     INCLUDES $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}> $<INSTALL_INTERFACE:include> ${CMAKE_CURRENT_LIST_DIR} 
     SOURCES ${srcs}
@@ -23,7 +23,7 @@ set(${module_name}_common_pref
     EXPORT_VERSION ${PROJECT_VERSION}
     EXPORT_VERSION_COMPATIBILITY AnyNewerVersion
         
-    DESTINATION_INCLUDE_DIR include/kautil/cache
+    DESTINATION_INCLUDE_DIR include/kautil/range
     DESTINATION_CMAKE_DIR cmake
     DESTINATION_LIB_DIR lib
 )
