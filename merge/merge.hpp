@@ -4,16 +4,9 @@
 
 
 
-#include <vector>
 #include <stdint.h>
 #include "kautil/algorithm/btree_search/btree_search.hpp"
 #include "kautil/region/region.hpp"
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
 
 
 namespace kautil{
@@ -90,7 +83,7 @@ struct merge{
 
         auto fsize=  pref->size();
         if(!fsize){
-            printf("write block : from,to(%lld,%lld)",from,to);
+            //printf("write block : from,to(%lld,%lld)",from,to);
             value_type new_block[2]= {from,to};
             auto new_block_ptr = &new_block;
             pref->write(0,(void**)&new_block_ptr,sizeof(new_block));
@@ -230,8 +223,8 @@ struct merge{
                     is_claim_region|=is_ovf_ovf; 
                 }
                 
-                printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
-                printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
+//                printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
+//                printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
                 
                 
 //                constexpr auto kBuffer = offset_type(512);
@@ -254,9 +247,9 @@ struct merge{
                     pref->write(i1.nearest_pos,(void**)&i1_ptr,sizeof(value_type));
                 }
                 
-                printf("output result\n");
-                debug_out_file<value_type,offset_type>(stdout,pref->fd,0,100);
-                printf("+++++++++++++++++++++++++++++++++++++++++++\n");
+//                printf("output result\n");
+//                debug_out_file<value_type,offset_type>(stdout,pref->fd,0,100);
+//                printf("+++++++++++++++++++++++++++++++++++++++++++\n");
                 return 0;
             }
         }else return 2;

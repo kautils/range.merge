@@ -1,4 +1,5 @@
-#ifdef TMAIN_KAUTIL_RANGE_MERGE_STATIC
+#ifdef TMAIN_KAUTIL_RANGE_MERGE_INTERFACE
+
 
 #include <stdint.h>
 #include <fcntl.h>
@@ -100,6 +101,7 @@ void debug_out_file_f(FILE* outto,int fd,offset_type from,offset_type to){
 
 
 #include "merge.hpp"
+#include <vector>
 int test() { // testing for practice
     using value_type = uint64_t;
     using offset_type = long;
@@ -127,21 +129,21 @@ int test() { // testing for practice
     m.exec(155,160);  
     m.exec(5,11);  
     m.exec(1,3);  
-    
-    
+
+
     fclose(f);
 
     return 0;
-    
+
 }
 
 
 int test1() { // testing each 
-    
+
     using value_type = uint64_t;
     using offset_type = long;
 
-    
+
     auto v = std::vector<value_type>{};
     for(auto i = 0 ; i < 100; i+=2){
         v.push_back(i*10+10);
@@ -150,8 +152,8 @@ int test1() { // testing each
     auto diff = value_type(0);
     auto from = value_type(0);
     auto to = value_type(0);
-    
-    
+
+
     { // case single block
 //        v.resize(2);
 //            diff = value_type(0);
@@ -166,7 +168,7 @@ int test1() { // testing each
 //            from = value_type(31);to = value_type(35);
     }
 
-//    {
+    {
 //        v.resize(2);
 //        diff = 1;
 //    // ovf-contained expect ([0,8] - (1,20)) 
@@ -185,8 +187,8 @@ int test1() { // testing each
 //    // ovf(lower) ovf(lower) 
 //        from = value_type(21);to = value_type(35); // expect [0,8] : (10,35)     
 //        from = value_type(22);to = value_type(35); // expect [16,24] : (22,35)
-//    }
-    
+    }
+
 
 //    { // case two block 
 //        v.resize(4);diff = 0;
@@ -255,14 +257,14 @@ int test1() { // testing each
     m.set_diff(diff);
     m.exec(from,to); // 0,20 => cont-overflow expect [0,8] (0,30) 
     fclose(f);
-    
+
     return 0;
 }
 
 
 
 int main() {
-    return temp();
+    return test();
 }
 
 #endif
