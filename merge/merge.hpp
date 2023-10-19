@@ -292,6 +292,19 @@ int temp() { // testing for practice
     m.set_diff(1);
     m.exec(10,20);  
     m.exec(15,25);  
+    m.exec(5,25);  
+    m.exec(2,31);  
+    m.exec(0,100);  
+    m.exec(105,110);  
+    m.exec(115,120);  
+    m.exec(0,125);  
+    m.exec(126,127);  
+    m.exec(129,131);  
+    m.exec(132,133);  
+    m.exec(135,138);  
+    m.exec(140,142);  
+    m.exec(134,142);  
+    
     fclose(f);
 
     return 0;
