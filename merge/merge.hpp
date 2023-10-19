@@ -97,14 +97,20 @@ struct merge{
             auto cond_section = is_same_section(i0,i1);
             if(kSameBlock !=cond_section){ // newly add element to memory or file
             
+                auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
+                auto i1_is_diff_adjust = !i1.nan*is_adjust_diff(i1,diff,to);
                 { // adjust direction with specified diff
-                    auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
                     i0.direction*=!i0_is_diff_adjust;
                     i0.overflow*=!i0_is_diff_adjust;
-                    
-                    auto i1_is_diff_adjust = !i1.nan*is_adjust_diff(i1,diff,to);
+                    i0.nearest_value=
+                              i0_is_diff_adjust*from
+                            +!i0_is_diff_adjust*i0.nearest_value; 
+                            
                     i1.direction*=!i1_is_diff_adjust;
                     i1.overflow*=!i1_is_diff_adjust;
+                    i1.nearest_value=
+                              i1_is_diff_adjust*to
+                            +!i1_is_diff_adjust*i1.nearest_value; 
                 }
 
                 {// ajdust cond_section, it is never be kSameVacaunt when overflow.   
@@ -154,6 +160,7 @@ struct merge{
                         auto ptr = &i0.nearest_value;
                         pref->read_value(i0.nearest_pos,&ptr);
                     }
+                    
                     i0.nearest_value=
                             !c0_is_contained*from
                             +c0_is_contained*i0.nearest_value;
@@ -293,10 +300,10 @@ int temp() {
     auto to = value_type(0);
     
     
-//    { // case single block
-//        v.resize(2);
-//            diff = value_type(0);
-//            from = value_type(0);to = value_type(10);
+    { // case single block
+        v.resize(2);
+            diff = value_type(0);
+            from = value_type(0);to = value_type(10);
 //            from = value_type(15);to = value_type(30);
 //            from = value_type(0);to = value_type(30);
 //            from = value_type(10);to = value_type(20);
@@ -305,7 +312,7 @@ int temp() {
 //            from = value_type(15);to = value_type(17);
 //            from = value_type(5);to = value_type(9);
 //            from = value_type(31);to = value_type(35);
-//    }
+    }
 
 //    {
 //        v.resize(2);
@@ -314,7 +321,7 @@ int temp() {
 //        from = value_type(1);to = value_type(11); 
 //        from = value_type(1);to = value_type(9); 
 //    // contained-ovf 
-//        from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  todo  miss : [0,8] - (9,21) 
+//        from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  
 //        from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
 //    // contained contained (inside-exact) 
 //        from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
@@ -353,7 +360,7 @@ int temp() {
 //        from = value_type(35);to = value_type(45); // cont-vac ([30,45] : (16,24))
 //        from = value_type(45);to = value_type(50); // vac-vac ([45,50] : (32,40))
 //    }
-    
+//    
 //    { // case three block 
 //        v.resize(6);diff = 0;
 //        from = value_type(0);to = value_type(10); // ovf-exact ([0,8] : (0,20))
