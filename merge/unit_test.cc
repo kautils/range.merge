@@ -1,8 +1,8 @@
 #ifdef TMAIN_KAUTIL_CACHE_MERGE_STATIC
 
+
 #include <vector>
 #include <stdint.h>
-//#include <numeric>
 #include "kautil/algorithm/btree_search/btree_search.hpp"
 #include "kautil/region/region.hpp"
 
@@ -71,7 +71,6 @@ using file_syscall_16b_f_pref= file_syscall_premitive<double>;
 
 
 
-
 template<typename value_type,typename offset_type>
 void debug_out_file(FILE* outto,int fd,offset_type from,offset_type to){
     struct stat st;
@@ -110,10 +109,13 @@ void debug_out_file_f(FILE* outto,int fd,offset_type from,offset_type to){
     }
 }
 
-
+#include "merge.hpp"
 
 
 int main() {
+    
+    return temp();
+    
     
     using value_type = uint64_t;
     using offset_type = long;
