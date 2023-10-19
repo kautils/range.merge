@@ -29,8 +29,8 @@ struct merge{
         auto is_contained = [](offset_type pos , int direction)->bool{
             return bool(
                 !direction
-                +(2 == ( bool(pos % sizeof(value_type)*2)  + (direction<0)))
-                +(2 == (!bool(pos % sizeof(value_type)*2) + (direction>0)))
+                +(2 == ( bool(pos % (sizeof(value_type)*2)) + (direction<0)) )
+                +(2 == (!bool(pos % (sizeof(value_type)*2)) + (direction>0)) )
             );
         };
         
@@ -226,9 +226,9 @@ struct merge{
                     is_claim_region|=is_ovf_ovf; 
                 }
                 
-                /*
                 printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
                 printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
+                /*
                 */
                 
                 if(is_claim_region){

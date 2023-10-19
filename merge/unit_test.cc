@@ -158,15 +158,15 @@ int test1() { // testing each
 
 
     { // case single block
-//        v.resize(2);
-//            diff = value_type(0);
-//            from = value_type(0);to = value_type(10);
-//            from = value_type(15);to = value_type(30);
-//            from = value_type(0);to = value_type(30);
-//            from = value_type(10);to = value_type(20);
-//            from = value_type(10);to = value_type(15);
-//            from = value_type(15);to = value_type(20);
-//            from = value_type(15);to = value_type(17);
+        v.resize(2);
+            diff = value_type(0);
+            from = value_type(0);to = value_type(10);
+            from = value_type(15);to = value_type(30);
+            from = value_type(0);to = value_type(30);
+            from = value_type(10);to = value_type(20);
+            from = value_type(10);to = value_type(15);
+            from = value_type(15);to = value_type(20);
+            from = value_type(15);to = value_type(17); // todo : *
 //            from = value_type(5);to = value_type(9);
 //            from = value_type(31);to = value_type(35);
     }
@@ -267,7 +267,8 @@ int test1() { // testing each
 
 
 int main() {
-    return test();
+    return test1();
+    //return test();
 }
 
 #endif
