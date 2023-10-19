@@ -3,6 +3,9 @@ if(NOT EXISTS ${CMAKE_BINARY_DIR}/CMakeKautilHeader.cmake)
 endif()
 include(${CMAKE_BINARY_DIR}/CMakeKautilHeader.cmake)
 git_clone(https://raw.githubusercontent.com/kautils/CMakeLibrarytemplate/v0.0.1/CMakeLibrarytemplate.cmake)
+git_clone(https://raw.githubusercontent.com/kautils/CMakeFetchKautilModule/v0.0.1/CMakeFetchKautilModule.cmake)
+
+CMakeFetchKautilModule(${m}_kautil_region GIT https://github.com/kautils/region.git       REMOTE origin BRANCH v0.0)
 
 find_package(KautilAlgorithmBtreeSearch.1.0.1.interface REQUIRED)
 set(module_name merge)
@@ -13,7 +16,9 @@ set(${module_name}_common_pref
     MODULE_NAME ${module_name}
     INCLUDES $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}> $<INSTALL_INTERFACE:include> ${CMAKE_CURRENT_LIST_DIR} 
     SOURCES ${srcs}
-    LINK_LIBS kautil::algorithm::btree_search::1.0.1::interface
+    LINK_LIBS 
+        kautil::region::0.0.1::interface
+        kautil::algorithm::btree_search::1.0.1::interface
     EXPORT_NAME_PREFIX ${PROJECT_NAME}
     EXPORT_VERSION ${PROJECT_VERSION}
     EXPORT_VERSION_COMPATIBILITY AnyNewerVersion
@@ -28,5 +33,5 @@ CMakeLibraryTemplate(${module_name} EXPORT_LIB_TYPE static ${${module_name}_comm
 set(__t ${${module_name}_static_tmain})
 add_executable(${__t})
 target_sources(${__t} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/unit_test.cc)
-target_link_libraries(${__t} PRIVATE ${${module_name}_static} kautil::algorithm::btree_search::1.0.1::interface )
+target_link_libraries(${__t} PRIVATE ${${module_name}_static} kautil::algorithm::btree_search::1.0.1::interface kautil::region::0.0.1::interface )
 target_compile_definitions(${__t} PRIVATE ${${module_name}_static_tmain_ppcs})

@@ -2,8 +2,9 @@
 
 #include <vector>
 #include <stdint.h>
-#include <numeric>
+//#include <numeric>
 #include "kautil/algorithm/btree_search/btree_search.hpp"
+#include "kautil/region/region.hpp"
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -65,6 +66,46 @@ struct file_syscall_premitive{
 using file_syscall_16b_pref= file_syscall_premitive<uint64_t>;
 using file_syscall_16b_f_pref= file_syscall_premitive<double>;
 
+
+
+
+template<typename value_type,typename offset_type>
+void debug_out_file(FILE* outto,int fd,offset_type from,offset_type to){
+    struct stat st;
+    fstat(fd,&st);
+    auto cnt = 0;
+    lseek(fd,0,SEEK_SET);
+    auto start = from;
+    auto size = st.st_size;
+    value_type block[2];
+    for(auto i = 0; i< size; i+=(sizeof(value_type)*2)){
+        if(from <= i && i<= to ){
+            lseek(fd,i,SEEK_SET);
+            ::read(fd,&block, sizeof(value_type) * 2);
+            //            read_block(i,block);
+            printf("[%lld] %lld %lld\n",i,block[0],block[1]);fflush(outto);
+        }
+    }
+}
+
+template<typename value_type,typename offset_type>
+void debug_out_file_f(FILE* outto,int fd,offset_type from,offset_type to){
+    struct stat st;
+    fstat(fd,&st);
+    auto cnt = 0;
+    lseek(fd,0,SEEK_SET);
+    auto start = from;
+    auto size = st.st_size;
+    value_type block[2];
+    for(auto i = 0; i< size; i+=(sizeof(value_type)*2)){
+        if(from <= i && i<= to ){
+            lseek(fd,i,SEEK_SET);
+            ::read(fd,&block, sizeof(value_type) * 2);
+            //            read_block(i,block);
+            printf("[%lld] %lf %lf\n",i,block[0],block[1]);fflush(outto);
+        }
+    }
+}
 
 
 
@@ -217,38 +258,35 @@ int main() {
     { // case three block 
         v.resize(6);diff = 0;
         from = value_type(0);to = value_type(10); // ovf-exact ([0,8] : (0,20))
-        from = value_type(0);to = value_type(60); // ovf-exact ([0,8] : (0,60))
-        from = value_type(0);to = value_type(65); // ovf-ovf ([0,8] : (0,65))
-        from = value_type(0);to = value_type(55); // ovf-cont ([0,8] : (0,60))
-        from = value_type(10);to = value_type(60); // exact-exact ([0,8] : (10,60))
-        from = value_type(10);to = value_type(65); // exact-ovf ([0,8] : (10,65))
-        from = value_type(10);to = value_type(55); // ovf-cont ([0,8] : (0,60))
-        from = value_type(15);to = value_type(60); // cont-exact ([0,8] : (10,60))
-        from = value_type(15);to = value_type(65); // cont-ovf ([0,8] : (10,65))
-        from = value_type(15);to = value_type(55); // cont-cont ([0,8] : (10,60))
-        from = value_type(20);to = value_type(60); // exact-exact ([0,8] : (10,60))
-        from = value_type(25);to = value_type(60); // vac-exact ([16,24] : (25,60))
-        from = value_type(25);to = value_type(65); // vac-ovf ([16,24] : (25,60))
-        from = value_type(25);to = value_type(55); // vac-cont ([16,24] : (25,60))
-        from = value_type(30);to = value_type(60); // exact-exact ([16,24] : (30,60))
-        from = value_type(30);to = value_type(65); // exact-ovf ([16,24] : (30,65))
-        from = value_type(30);to = value_type(55); // exact-cont ([16,24] : (30,60))
-        from = value_type(35);to = value_type(60); // cont-exact ([16,24] : (30,60))
-        from = value_type(35);to = value_type(65); // cont-ovf ([16,24] : (30,65))
-        from = value_type(35);to = value_type(55); // cont-cont ([16,24] : (30,60))
-        from = value_type(45);to = value_type(60); // vac-exact ([32,40] : (45,60))
-        from = value_type(45);to = value_type(65); // vac-ovf ([32,40] : (45,60))
-        from = value_type(45);to = value_type(55); // vac-cont ([32,40] : (45,60))
-        from = value_type(50);to = value_type(60); // exact-exact ([32,40] : (50,60))
-        from = value_type(50);to = value_type(65); // exact-ovf ([32,40] : (50,65))
-        from = value_type(50);to = value_type(55); // exact-cont ([32,40] : (50,60))
-        from = value_type(55);to = value_type(60); // cont-exact ([32,40] : (50,60))
-        from = value_type(55);to = value_type(65); // cont-ovf ([32,40] : (50,65))
-        
-
-        from = value_type(60);to = value_type(65); // exact-ovf ([32,40] : (50,65))
+//        from = value_type(0);to = value_type(60); // ovf-exact ([0,8] : (0,60))
+//        from = value_type(0);to = value_type(65); // ovf-ovf ([0,8] : (0,65))
+//        from = value_type(0);to = value_type(55); // ovf-cont ([0,8] : (0,60))
+//        from = value_type(10);to = value_type(60); // exact-exact ([0,8] : (10,60))
+//        from = value_type(10);to = value_type(65); // exact-ovf ([0,8] : (10,65))
+//        from = value_type(10);to = value_type(55); // ovf-cont ([0,8] : (0,60))
+//        from = value_type(15);to = value_type(60); // cont-exact ([0,8] : (10,60))
+//        from = value_type(15);to = value_type(65); // cont-ovf ([0,8] : (10,65))
+//        from = value_type(15);to = value_type(55); // cont-cont ([0,8] : (10,60))
+//        from = value_type(20);to = value_type(60); // exact-exact ([0,8] : (10,60))
+//        from = value_type(25);to = value_type(60); // vac-exact ([16,24] : (25,60))
+//        from = value_type(25);to = value_type(65); // vac-ovf ([16,24] : (25,60))
+//        from = value_type(25);to = value_type(55); // vac-cont ([16,24] : (25,60))
+//        from = value_type(30);to = value_type(60); // exact-exact ([16,24] : (30,60))
+//        from = value_type(30);to = value_type(65); // exact-ovf ([16,24] : (30,65))
+//        from = value_type(30);to = value_type(55); // exact-cont ([16,24] : (30,60))
+//        from = value_type(35);to = value_type(60); // cont-exact ([16,24] : (30,60))
+//        from = value_type(35);to = value_type(65); // cont-ovf ([16,24] : (30,65))
+//        from = value_type(35);to = value_type(55); // cont-cont ([16,24] : (30,60))
+//        from = value_type(45);to = value_type(60); // vac-exact ([32,40] : (45,60))
+//        from = value_type(45);to = value_type(65); // vac-ovf ([32,40] : (45,60))
+//        from = value_type(45);to = value_type(55); // vac-cont ([32,40] : (45,60))
+//        from = value_type(50);to = value_type(60); // exact-exact ([32,40] : (50,60))
+//        from = value_type(50);to = value_type(65); // exact-ovf ([32,40] : (50,65))
+//        from = value_type(50);to = value_type(55); // exact-cont ([32,40] : (50,60))
+//        from = value_type(55);to = value_type(60); // cont-exact ([32,40] : (50,60))
+//        from = value_type(55);to = value_type(65); // cont-ovf ([32,40] : (50,65))
+//        from = value_type(60);to = value_type(65); // exact-ovf ([32,40] : (50,65))
 //        from = value_type(65);to = value_type(70); // ovf-ovf(upper) ([48,56] : (65,75))
-        
     }
     
     
@@ -279,7 +317,7 @@ int main() {
         auto cond_section = is_same_section(i0,i1);
         if(0==(!is_ordered+!(kSameBlock !=cond_section))){ 
             // newly add element to memory or file
-            auto is_claim_region = (kSamevacant==cond_section);  
+            auto is_claim_region = bool(kSamevacant==cond_section);  
             auto fsize=  pref.size();
             if(is_ordered*!fsize){
                 printf("write block : from,to(%lld,%lld)",from,to);
@@ -289,6 +327,7 @@ int main() {
 //            }else if(0==(!is_ordered+!(fsize == (sizeof(value_type)*2))) ){
             }else if(2==(is_ordered+!(fsize % (sizeof(value_type)*2))) ){
     
+                auto squash_to=offset_type(0),squash_from=offset_type(0);
                 auto pos_min = 0;
                 auto pos_max = pref.size()-sizeof(value_type);
                 
@@ -369,8 +408,11 @@ int main() {
                     (2== (!bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction<0)))*(-sizeof(value_type))
                     +(2==( bool(i0.nearest_pos%(sizeof(value_type)*2))+(i0.direction>0)))*(sizeof(value_type));
                 i0.nearest_pos+=!i0.overflow*i0_adj_when_vacant;
+                
                 // express squash with i1 
+                squash_to = i1.nearest_pos; 
                 i1.nearest_pos-=static_cast<offset_type>(((i1.nearest_pos-i0.nearest_pos)/(sizeof(value_type)*2))*sizeof(value_type)*2);
+                squash_from = i1.nearest_pos+sizeof(value_type); 
                 
                 
                 {// adjust when ovf_ovf
@@ -383,30 +425,46 @@ int main() {
                               is_ovf_ovf*(i0.nearest_pos+sizeof(value_type))
                             +!is_ovf_ovf*i1.nearest_pos
                             );
+                    is_claim_region|=is_ovf_ovf; 
                 }
                 
                 printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
                 printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
                 
                 
+                if(is_claim_region){
+                    printf("claim region\n");
+                }else{ // squash
+                    printf("need not to claim region\n");
+                    printf("squash (from,to)(%lld,%lld)\n",squash_from,squash_to);fflush(stdout);
+                    kautil::region{&pref}.shrink(squash_from,squash_to,512);
+                    {
+                        auto i0_ptr = &i0.nearest_value;
+                        pref.write(i0.nearest_pos,(void**)&i0_ptr,sizeof(value_type));
+                    }
+    
+                    {
+                        auto i1_ptr = &i1.nearest_value;
+                        pref.write(i1.nearest_pos,(void**)&i1_ptr,sizeof(value_type));
+                    }
+                }
+                
                 
             }else{
                 printf("else\n",fsize);
                 printf("  %d\n",fsize);
-                
             }
 
             
-            // check 
-            // squash
             
         }else{
-            printf("wrong\n");
+            printf("wrong corrupted cache data\n");
             printf("  is_ordered(%d)\n",is_ordered);
-            
-            // wrong file
         }
+
         
+        printf("output result\n");
+        debug_out_file<value_type,offset_type>(stdout,fd,0,100);
         
         
         
