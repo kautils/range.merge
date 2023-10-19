@@ -208,7 +208,45 @@ int main() {
 //        from = value_type(30);to = value_type(40); // exact-exact ([30,40] : (16,24))
 //        from = value_type(30);to = value_type(45); // exact-vac ([30,45] : (16,24))
 //        from = value_type(35);to = value_type(40); // cont-exact ([30,40] : (16,24))
+//        from = value_type(35);to = value_type(45); // cont-vac ([30,45] : (16,24))
+//        from = value_type(45);to = value_type(50); // vac-vac ([45,50] : (32,40))
+    }
+    
+    
+    { // case three block 
+        v.resize(6);diff = 0;
+        from = value_type(0);to = value_type(60); // ovf-exact ([0,8] : (0,60))
+        from = value_type(0);to = value_type(65); // ovf-ovf ([0,8] : (0,65))
+        from = value_type(0);to = value_type(55); // ovf-cont ([0,8] : (0,60))
+//        from = value_type(5);to = value_type(10); // ovf-exact ([0,8] : (0,5))
+        from = value_type(10);to = value_type(60); // exact-exact ([0,8] : (10,60))
+        from = value_type(10);to = value_type(65); // exact-ovf ([0,8] : (10,65))
+        from = value_type(10);to = value_type(55); // ovf-cont ([0,8] : (0,60))
+        from = value_type(15);to = value_type(60); // cont-exact ([0,8] : (10,60))
+        from = value_type(15);to = value_type(65); // cont-ovf ([0,8] : (10,65))
+        from = value_type(15);to = value_type(55); // cont-cont ([0,8] : (10,60))
+        from = value_type(20);to = value_type(60); // exact-exact ([0,8] : (10,60))
+        from = value_type(25);to = value_type(60); // vac-exact ([16,24] : (25,60))
+        from = value_type(25);to = value_type(65); // vac-ovf ([16,24] : (25,60))
+        from = value_type(25);to = value_type(55); // vac-cont ([16,24] : (25,60))
+        from = value_type(30);to = value_type(60); // exact-exact ([16,24] : (30,60))
+        from = value_type(30);to = value_type(65); // exact-ovf ([16,24] : (30,65))
+        from = value_type(30);to = value_type(55); // exact-cont ([16,24] : (30,60))
+        from = value_type(35);to = value_type(60); // cont-exact ([16,24] : (30,60))
+        from = value_type(35);to = value_type(65); // cont-ovf ([16,24] : (30,65))
+        from = value_type(35);to = value_type(55); // cont-cont ([16,24] : (30,60))
+        from = value_type(45);to = value_type(60); // vac-exact ([32,40] : (45,60))
+        from = value_type(45);to = value_type(65); // vac-ovf ([32,40] : (45,60))
+        from = value_type(45);to = value_type(55); // vac-cont ([32,40] : (45,60))
+        from = value_type(50);to = value_type(60); // exact-exact ([32,40] : (50,60))
+        from = value_type(50);to = value_type(65); // exact-ovf ([32,40] : (50,65))
+        from = value_type(50);to = value_type(55); // exact-cont ([32,40] : (50,60))
+        from = value_type(55);to = value_type(60); // cont-exact ([32,40] : (50,60))
+        from = value_type(55);to = value_type(65); // cont-ovf ([32,40] : (50,65))
         
+
+        from = value_type(60);to = value_type(65); // exact-ovf ([32,40] : (50,65))
+//        from = value_type(65);to = value_type(70); // ovf-ovf(upper) ([48,56] : (65,75))
         
     }
     
