@@ -108,7 +108,8 @@ struct merge{
                                   i0_is_diff_adjust*from
                                 +!i0_is_diff_adjust*i0.nearest_value)
                             +c0_is_contained*i0.nearest_value;
-                            
+                    
+                    
                     i1.direction*=!i1_is_diff_adjust;
                     i1.overflow*=!i1_is_diff_adjust;
                     i1.nearest_value=
@@ -116,8 +117,13 @@ struct merge{
                                   i1_is_diff_adjust*to
                                 +!i1_is_diff_adjust*i1.nearest_value)
                             +c1_is_contained*i1.nearest_value;
-                            
+                    
+                    {// adjust is_contained 
+                        c0_is_contained|=i0_is_diff_adjust;
+                        c1_is_contained|=i1_is_diff_adjust;
+                    }
                 }
+                
 
                 {// ajdust cond_section, it is never be kSameVacaunt when overflow.   
                     auto is_ovf_occure = bool(i0.overflow+i1.overflow);
