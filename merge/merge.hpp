@@ -253,12 +253,12 @@ struct merge{
     const char* error_msg(int err){
         switch (err) {
             case 1: {
-                static const char * kMsg = "error(2) : invalid input";
+                static const char * kMsg = "error(1) : invalid input";
                 return kMsg;
             }; 
             case 2:
             {
-                static const char * kMsg = "error(1) : corrupted region.";
+                static const char * kMsg = "error(2) : corrupted region.";
                 return kMsg;
             }; 
             case 3: {
