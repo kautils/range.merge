@@ -65,44 +65,6 @@ using file_syscall_16b_f_pref= file_syscall_premitive<double>;
 
 
 
-template<typename value_type,typename offset_type>
-void debug_out_file(FILE* outto,int fd,offset_type from,offset_type to){
-    struct stat st;
-    fstat(fd,&st);
-    auto cnt = 0;
-    lseek(fd,0,SEEK_SET);
-    auto start = from;
-    auto size = st.st_size;
-    value_type block[2];
-    for(auto i = 0; i< size; i+=(sizeof(value_type)*2)){
-        if(from <= i && i<= to ){
-            lseek(fd,i,SEEK_SET);
-            ::read(fd,&block, sizeof(value_type) * 2);
-            //            read_block(i,block);
-            printf("[%lld] %lld %lld\n",i,block[0],block[1]);fflush(outto);
-        }
-    }
-}
-
-template<typename value_type,typename offset_type>
-void debug_out_file_f(FILE* outto,int fd,offset_type from,offset_type to){
-    struct stat st;
-    fstat(fd,&st);
-    auto cnt = 0;
-    lseek(fd,0,SEEK_SET);
-    auto start = from;
-    auto size = st.st_size;
-    value_type block[2];
-    for(auto i = 0; i< size; i+=(sizeof(value_type)*2)){
-        if(from <= i && i<= to ){
-            lseek(fd,i,SEEK_SET);
-            ::read(fd,&block, sizeof(value_type) * 2);
-            printf("[%lld] %lf %lf\n",i,block[0],block[1]);fflush(outto);
-        }
-    }
-}
-
-
 #include "merge.hpp"
 int test() { // testing for practice
     using value_type = uint64_t;
