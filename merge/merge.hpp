@@ -4,7 +4,6 @@
 
 
 
-#include <stdint.h>
 #include "kautil/algorithm/btree_search/btree_search.hpp"
 #include "kautil/region/region.hpp"
 
