@@ -90,7 +90,7 @@ struct merge{
             auto i1 = bt.search(to,false);
             constexpr auto kSameBlock = 1,kDifferent = 0,kSamevacant = -1;
             auto cond_section = is_same_section(i0,i1);
-            if(kSameBlock !=cond_section){ // newly add element to memory or file
+            if(kSameBlock !=cond_section){ 
             
                 auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
                 auto i1_is_diff_adjust = !i1.nan*is_adjust_diff(i1,diff,to);
@@ -113,7 +113,7 @@ struct merge{
                     cond_section= !is_ovf_occure*cond_section + is_ovf_occure*kDifferent;   
                 }
                 
-                auto is_claim_region = bool(kSamevacant==cond_section);  
+                auto is_claim_region = bool(kSamevacant==cond_section); // newly add element to memory or file  
                 auto squash_src=offset_type(0),squash_length=offset_type(0);
                 auto pos_min = 0;
                 auto pos_max = pref->size()-sizeof(value_type);
