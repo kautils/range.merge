@@ -18,11 +18,7 @@ struct merge{
     
     using value_type = typename preference::value_type;
     using offset_type = typename preference::offset_type;
-    using bt_type = kautil::algorithm::btree_search<preference>;
     
-    preference * pref;
-    value_type diff = value_type(1);
-    offset_type buffer_size = offset_type(512);
     merge(preference * pref) : pref(pref){}
     ~merge(){}
     
@@ -30,6 +26,7 @@ struct merge{
     void set_diff(value_type v){ diff = v; }
     int exec(value_type from,value_type to){
         
+        using bt_type = kautil::algorithm::btree_search<preference>;
         auto is_contained = [](offset_type pos , int direction)->bool{
             return bool(
                 !direction
@@ -223,11 +220,10 @@ struct merge{
                     is_claim_region|=is_ovf_ovf; 
                 }
                 
-//                printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
-//                printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
+                //printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
+                //printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
                 
                 
-//                constexpr auto kBuffer = offset_type(512);
                 if(is_claim_region){
                     auto claim_size = is_ovf_ovf_upper*(fsize-sizeof(value_type));
                     auto claim_res = kautil::region{pref}.claim(claim_size,sizeof(value_type)*2,buffer_size);
@@ -247,9 +243,8 @@ struct merge{
                     pref->write(i1.nearest_pos,(void**)&i1_ptr,sizeof(value_type));
                 }
                 
-//                printf("output result\n");
-//                debug_out_file<value_type,offset_type>(stdout,pref->fd,0,100);
-//                printf("+++++++++++++++++++++++++++++++++++++++++++\n");
+                //printf("output result\n");
+                //debug_out_file<value_type,offset_type>(stdout,pref->fd,0,100);
                 return 0;
             }
         }else return 2;
@@ -278,6 +273,11 @@ struct merge{
             
         }
     }
+    
+private:
+    preference * pref;
+    value_type diff = value_type(1);
+    offset_type buffer_size = offset_type(512);
 };
 
 
