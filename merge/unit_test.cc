@@ -112,12 +112,12 @@ int test() { // testing for practice
     m.set_diff(1);
     m.exec(10,20);  
     m.exec(15,25);  
-//    m.exec(5,25);  
-//    m.exec(2,31);  
-//    m.exec(0,100);  
+    m.exec(5,25);  
+    m.exec(2,31);  
+    m.exec(0,100);  
     m.exec(105,110);  
     m.exec(115,120);  
-//    m.exec(0,125);  
+////    *m.exec(0,125);  
     m.exec(126,127);  
     m.exec(129,131);  
     m.exec(132,133);  
@@ -128,8 +128,11 @@ int test() { // testing for practice
     m.exec(145,150);  
     m.exec(155,160);  
     m.exec(5,11);  
-    m.exec(1,3);  
+    
+    m.exec(1,3); // todo : wrong
 
+    debug_out_file<value_type,offset_type>(stdout,fd,0,1000);
+    
 
     fclose(f);
 

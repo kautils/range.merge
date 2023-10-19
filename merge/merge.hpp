@@ -83,7 +83,7 @@ struct merge{
             value_type new_block[2]= {from,to};
             auto new_block_ptr = &new_block;
             pref->write(0,(void**)&new_block_ptr,sizeof(new_block));
-            return 0;
+            //return 0;
         }else if(!(fsize % (sizeof(value_type)*2)) ){
             auto bt = kautil::algorithm::btree_search{pref};
             auto i0 = bt.search(from,false);
@@ -92,8 +92,14 @@ struct merge{
             auto cond_section = is_same_section(i0,i1);
             if(kSameBlock !=cond_section){ 
             
-                auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
-                auto i1_is_diff_adjust = !i1.nan*is_adjust_diff(i1,diff,to);
+                auto c0_is_contained = is_contained(i0.nearest_pos,i0.direction);
+                auto c1_is_contained = is_contained(i1.nearest_pos,i1.direction);
+                auto i0_is_diff_adjust = !(c0_is_contained+i0.nan)*is_adjust_diff(i0,diff,from);
+                auto i1_is_diff_adjust = !(c1_is_contained+i1.nan)*is_adjust_diff(i1,diff,to);
+//                auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
+//                auto i1_is_diff_adjust = !i1.nan*is_adjust_diff(i1,diff,to);
+                
+                
                 { // adjust direction with specified diff
                     i0.direction*=!i0_is_diff_adjust;
                     i0.overflow*=!i0_is_diff_adjust;
@@ -138,6 +144,7 @@ struct merge{
                 }
                 
                 
+                 
                 {
                     // if c0 is contained and 
                         // d < 0 then -=8
@@ -148,7 +155,7 @@ struct merge{
                     auto c0_adj_pos = -sizeof(value_type); 
                     auto c0_cond_d =i0.direction<0; 
                     auto c0_cond_dzero = 2==(!i0.direction+bool(i0.nearest_pos%(sizeof(value_type)*2) ));
-                    auto c0_is_contained = is_contained(i0.nearest_pos,i0.direction);
+                    //auto c0_is_contained = is_contained(i0.nearest_pos,i0.direction);
                     auto c0_is_contained_adjust = 3==(c0_is_contained+!i0.overflow+bool(c0_cond_d+c0_cond_dzero)); 
                     if(c0_is_contained_adjust){
                         i0.nearest_pos+=static_cast<offset_type>(c0_adj_pos);
@@ -168,7 +175,7 @@ struct merge{
                     auto c1_adj_pos = sizeof(value_type); 
                     auto c1_cond_d =i1.direction>0; 
                     auto c1_cond_dzero = 2==(!i1.direction+!bool(i1.nearest_pos%(sizeof(value_type)*2) ));
-                    auto c1_is_contained = is_contained(i1.nearest_pos,i1.direction);
+                    //auto c1_is_contained = is_contained(i1.nearest_pos,i1.direction);
                     auto c1_is_contained_adjust = 3==(c1_is_contained+!i1.overflow+bool(c1_cond_d+c1_cond_dzero)); 
                     if(c1_is_contained_adjust){
                         i1.nearest_pos+=static_cast<offset_type>(c1_adj_pos);
@@ -219,9 +226,10 @@ struct merge{
                     is_claim_region|=is_ovf_ovf; 
                 }
                 
-                //printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
-                //printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
-                
+                /*
+                printf("[%ld] %lld\n",i0.nearest_pos,i0.nearest_value);fflush(stdout);
+                printf("[%ld] %lld\n",i1.nearest_pos,i1.nearest_value);fflush(stdout);
+                */
                 
                 if(is_claim_region){
                     auto claim_size = is_ovf_ovf_upper*(fsize-sizeof(value_type));
@@ -242,12 +250,15 @@ struct merge{
                     pref->write(i1.nearest_pos,(void**)&i1_ptr,sizeof(value_type));
                 }
                 
-                //printf("output result\n");
-                //debug_out_file<value_type,offset_type>(stdout,pref->fd,0,100);
+                /*
+                printf("output result\n");
+                debug_out_file<value_type,offset_type>(stdout,pref->fd,0,100);
+                printf("+++++++++++++++++++++++++++++\n");
+                */
                 return 0;
             }
         }else return 2;
-        return 3;
+        return 0;
     }
     
     const char* error_msg(int err){
