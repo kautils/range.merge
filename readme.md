@@ -66,7 +66,7 @@ using file_syscall_16b_f_pref= file_syscall_premitive<double>;
 
 
 #include "merge.hpp"
-int test() { // testing for practice
+int main() { // testing for practice
     using value_type = uint64_t;
     using offset_type = long;
     auto f = fopen("merge.cache","w+b");
