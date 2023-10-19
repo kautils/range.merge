@@ -96,7 +96,6 @@ struct merge{
             constexpr auto kSameBlock = 1,kDifferent = 0,kSamevacant = -1;
             auto cond_section = is_same_section(i0,i1);
             if(kSameBlock !=cond_section){ // newly add element to memory or file
-                auto is_claim_region = bool(kSamevacant==cond_section);  
             
                 // adjust direction with specified diff
                 auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
@@ -107,7 +106,9 @@ struct merge{
                 i1.direction*=!i1_is_diff_adjust;
                 i1.overflow*=!i1_is_diff_adjust;
                 
-                
+                auto is_ovf_occure = bool(i0.overflow+i1.overflow);
+                cond_section= !is_ovf_occure*cond_section + is_ovf_occure*kDifferent;  
+                auto is_claim_region = bool(kSamevacant==cond_section);  
                 auto squash_src=offset_type(0),squash_length=offset_type(0);
                 auto pos_min = 0;
                 auto pos_max = pref->size()-sizeof(value_type);
@@ -305,24 +306,21 @@ int temp() {
     {
         v.resize(2);
         diff = 1;
-//    // ovf-contained expect ([0,8] - (1,20)) 
-//        from = value_type(1);to = value_type(11);  // todo  miss : [0,8] - (1,20)
+    // ovf-contained expect ([0,8] - (1,20)) 
+        from = value_type(1);to = value_type(11); 
         from = value_type(1);to = value_type(9); 
+    // contained-ovf 
+        from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  todo  miss : [0,8] - (9,21) 
+        from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
+    // contained contained (inside-exact) 
+        from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
+        from = value_type(15);to = value_type(22);  // expect [0,8] : (10,22)
 
-//    // contained-ovf 
-//        from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  todo  miss : [0,8] - (9,21) 
-//        from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
-//
-//    // contained contained (inside-exact) 
-//        from = value_type(15);to = value_type(21); // expect [0,8] : (10,20)    
-//        from = value_type(15);to = value_type(22);  // expect [0,8] : (10,22)
-//        
-//    // ovf(lower) ovf(lower) expect [0,8] : (5,8)
-//        from = value_type(5);to = value_type(9); //expect [0,8] : (5,20)
-//        from = value_type(5);to = value_type(8); //expect [0,8] : (5,8)
-//        
-//    // ovf(lower) ovf(lower) 
-//        from = value_type(21);to = value_type(35); // expect [0,8] : (10,35)     
+    // ovf(lower) ovf(lower) expect [0,8] : (5,8)
+        from = value_type(5);to = value_type(9); //expect [0,8] : (5,20)
+        from = value_type(5);to = value_type(8); //expect [0,8] : (5,8)
+    // ovf(lower) ovf(lower) 
+        from = value_type(21);to = value_type(35); // expect [0,8] : (10,35)     
 //        from = value_type(22);to = value_type(35); // expect [16,24] : (22,35)
 
     }

@@ -210,10 +210,10 @@ int main() {
 
 
     { // case single block : change the diff
-        v.resize(2);diff = 1;
+//        v.resize(2);diff = 1;
 // ovf-contained expect ([0,8] - (1,20)) 
 //    from = value_type(1);to = value_type(11);  // todo  miss : [0,8] - (1,20)
-    from = value_type(1);to = value_type(9); 
+//    from = value_type(1);to = value_type(9); 
 
 // contained-ovf 
 //    from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  todo  miss : [0,8] - (9,21) 
