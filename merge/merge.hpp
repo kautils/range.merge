@@ -94,24 +94,29 @@ struct merge{
             
                 auto c0_is_contained = is_contained(i0.nearest_pos,i0.direction);
                 auto c1_is_contained = is_contained(i1.nearest_pos,i1.direction);
-                auto i0_is_diff_adjust = !(c0_is_contained+i0.nan)*is_adjust_diff(i0,diff,from);
-                auto i1_is_diff_adjust = !(c1_is_contained+i1.nan)*is_adjust_diff(i1,diff,to);
-//                auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
-//                auto i1_is_diff_adjust = !i1.nan*is_adjust_diff(i1,diff,to);
+//                auto i0_is_diff_adjust = !(c0_is_contained+i0.nan)*is_adjust_diff(i0,diff,from);
+//                auto i1_is_diff_adjust = !(c1_is_contained+i1.nan)*is_adjust_diff(i1,diff,to);
+                auto i0_is_diff_adjust = !i0.nan*is_adjust_diff(i0,diff,from);
+                auto i1_is_diff_adjust = !i1.nan*is_adjust_diff(i1,diff,to);
                 
                 
                 { // adjust direction with specified diff
                     i0.direction*=!i0_is_diff_adjust;
                     i0.overflow*=!i0_is_diff_adjust;
                     i0.nearest_value=
-                              i0_is_diff_adjust*from
-                            +!i0_is_diff_adjust*i0.nearest_value; 
+                            !c0_is_contained*(
+                                  i0_is_diff_adjust*from
+                                +!i0_is_diff_adjust*i0.nearest_value)
+                            +c0_is_contained*i0.nearest_value;
                             
                     i1.direction*=!i1_is_diff_adjust;
                     i1.overflow*=!i1_is_diff_adjust;
                     i1.nearest_value=
-                              i1_is_diff_adjust*to
-                            +!i1_is_diff_adjust*i1.nearest_value; 
+                            !c1_is_contained*(
+                                  i1_is_diff_adjust*to
+                                +!i1_is_diff_adjust*i1.nearest_value)
+                            +c1_is_contained*i1.nearest_value;
+                            
                 }
 
                 {// ajdust cond_section, it is never be kSameVacaunt when overflow.   
@@ -155,7 +160,7 @@ struct merge{
                     auto c0_adj_pos = -sizeof(value_type); 
                     auto c0_cond_d =i0.direction<0; 
                     auto c0_cond_dzero = 2==(!i0.direction+bool(i0.nearest_pos%(sizeof(value_type)*2) ));
-                    //auto c0_is_contained = is_contained(i0.nearest_pos,i0.direction);
+//                    auto c0_is_contained = is_contained(i0.nearest_pos,i0.direction);
                     auto c0_is_contained_adjust = 3==(c0_is_contained+!i0.overflow+bool(c0_cond_d+c0_cond_dzero)); 
                     if(c0_is_contained_adjust){
                         i0.nearest_pos+=static_cast<offset_type>(c0_adj_pos);
@@ -175,7 +180,7 @@ struct merge{
                     auto c1_adj_pos = sizeof(value_type); 
                     auto c1_cond_d =i1.direction>0; 
                     auto c1_cond_dzero = 2==(!i1.direction+!bool(i1.nearest_pos%(sizeof(value_type)*2) ));
-                    //auto c1_is_contained = is_contained(i1.nearest_pos,i1.direction);
+//                    auto c1_is_contained = is_contained(i1.nearest_pos,i1.direction);
                     auto c1_is_contained_adjust = 3==(c1_is_contained+!i1.overflow+bool(c1_cond_d+c1_cond_dzero)); 
                     if(c1_is_contained_adjust){
                         i1.nearest_pos+=static_cast<offset_type>(c1_adj_pos);

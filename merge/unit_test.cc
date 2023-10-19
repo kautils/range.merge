@@ -158,25 +158,25 @@ int test1() { // testing each
 
 
     { // case single block
-        v.resize(2);
-            diff = value_type(0);
-            from = value_type(0);to = value_type(10);
-            from = value_type(15);to = value_type(30);
-            from = value_type(0);to = value_type(30);
-            from = value_type(10);to = value_type(20);
-            from = value_type(10);to = value_type(15);
-            from = value_type(15);to = value_type(20);
-            from = value_type(15);to = value_type(17); // todo : *
+//        v.resize(2);
+//            diff = value_type(0);
+//            from = value_type(0);to = value_type(10);
+//            from = value_type(15);to = value_type(30);
+//            from = value_type(0);to = value_type(30);
+//            from = value_type(10);to = value_type(20);
+//            from = value_type(10);to = value_type(15);
+//            from = value_type(15);to = value_type(20);
+//            from = value_type(15);to = value_type(17); 
 //            from = value_type(5);to = value_type(9);
 //            from = value_type(31);to = value_type(35);
     }
 
     {
-//        v.resize(2);
-//        diff = 1;
-//    // ovf-contained expect ([0,8] - (1,20)) 
+        v.resize(2);
+        diff = 1;
+    // ovf-contained expect ([0,8] - (1,20)) 
 //        from = value_type(1);to = value_type(11); 
-//        from = value_type(1);to = value_type(9); 
+//        from = value_type(1);to = value_type(9);  
 //    // contained-ovf 
 //        from = value_type(9);to = value_type(21); //expect [0,8] (10,20)  
 //        from = value_type(8);to = value_type(22); //expect [0,8] (8,22)
@@ -267,8 +267,8 @@ int test1() { // testing each
 
 
 int main() {
-    return test1();
-    //return test();
+//    return test1();
+    return test();
 }
 
 #endif
