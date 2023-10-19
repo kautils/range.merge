@@ -87,7 +87,7 @@ struct merge{
             printf("write block : from,to(%lld,%lld)",from,to);
             value_type new_block[2]= {from,to};
             auto new_block_ptr = &new_block;
-            pref->write(0,(void**)&new_block_ptr,sizeof(*new_block));
+            pref->write(0,(void**)&new_block_ptr,sizeof(new_block));
             return 0;
         }else if(!(fsize % (sizeof(value_type)*2)) ){
             auto bt = kautil::algorithm::btree_search{pref};
@@ -279,12 +279,27 @@ struct merge{
             
         }
     }
-    
-    
 };
 
 
-int temp() {
+int temp() { // testing for practice
+    using value_type = uint64_t;
+    using offset_type = long;
+    auto f = fopen("merge.cache","w+b");
+    auto fd = fileno(f);
+    auto pref = file_syscall_premitive<value_type>{.fd=fileno(f)};
+    auto m = merge{&pref};
+    m.set_diff(1);
+    m.exec(10,20);  
+    m.exec(15,25);  
+    fclose(f);
+
+    return 0;
+    
+}
+
+
+int temp1() { // testing each 
     
     using value_type = uint64_t;
     using offset_type = long;
@@ -301,9 +316,9 @@ int temp() {
     
     
     { // case single block
-        v.resize(2);
-            diff = value_type(0);
-            from = value_type(0);to = value_type(10);
+//        v.resize(2);
+//            diff = value_type(0);
+//            from = value_type(0);to = value_type(10);
 //            from = value_type(15);to = value_type(30);
 //            from = value_type(0);to = value_type(30);
 //            from = value_type(10);to = value_type(20);
@@ -400,11 +415,9 @@ int temp() {
     auto fd = fileno(f);
     auto pref = file_syscall_premitive<value_type>{.fd=fileno(f)};
     auto m = merge{&pref};
-    //m.__a(0,20);
     m.set_diff(diff);
     m.exec(from,to); // 0,20 => cont-overflow expect [0,8] (0,30) 
     fclose(f);
-        
     
     
     return 0;
