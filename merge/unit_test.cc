@@ -89,8 +89,8 @@ int main() {
         
         // if  nearest_pos is same, then
             // return -1 (case in the same vacant)
-                // 1) !nearest_pos % 16 &&  both direction < 0
-                // 2) nearest_pos % 16 &&  both direction > 0
+                // 1) !nearest_pos % 16 &&  both direction < 0 && (both is not exact)
+                // 2) nearest_pos % 16 &&  both direction > 0 && (both is not exact)
             // return 1 (case in the same block)
                 // 1) !nearest_pos % 16 &&  both direction > 0
                 // 2) nearest_pos % 16 &&  both direction < 0
@@ -100,10 +100,11 @@ int main() {
         auto is_even = !(btres0.nearest_pos%(sizeof(value_type)*2) ); 
         
         // -2 <= directions <= 2  direction==0 is counted as contained. 
-        auto directions = btres0.direction+btres1.direction+!btres0.direction+!btres1.direction;
-
+        auto cond_exact = !btres0.direction+!btres1.direction;
+        auto directions = btres0.direction+btres1.direction+cond_exact;
+        
         return is_same_pos *(
-              bool((is_even * directions==-2) +(!is_even * directions==2))*-1  
+              bool((is_even * directions==-2) +(!is_even * directions==2))*!bool(cond_exact)*-1   
             + bool( is_even * directions==2 +!is_even * directions==-2)*1  
         );
     };
@@ -215,10 +216,10 @@ int main() {
     
     { // case three block 
         v.resize(6);diff = 0;
+        from = value_type(0);to = value_type(10); // ovf-exact ([0,8] : (0,20))
         from = value_type(0);to = value_type(60); // ovf-exact ([0,8] : (0,60))
         from = value_type(0);to = value_type(65); // ovf-ovf ([0,8] : (0,65))
         from = value_type(0);to = value_type(55); // ovf-cont ([0,8] : (0,60))
-//        from = value_type(5);to = value_type(10); // ovf-exact ([0,8] : (0,5))
         from = value_type(10);to = value_type(60); // exact-exact ([0,8] : (10,60))
         from = value_type(10);to = value_type(65); // exact-ovf ([0,8] : (10,65))
         from = value_type(10);to = value_type(55); // ovf-cont ([0,8] : (0,60))
