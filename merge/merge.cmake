@@ -21,7 +21,6 @@ install(FILES ${${m}_merge_hpp} DESTINATION include/kautil/range/merge )
 install(SCRIPT "${${m}_kautil_btree.BUILD_DIR}/cmake_install.cmake")
 install(SCRIPT "${${m}_kautil_region.BUILD_DIR}/cmake_install.cmake")
 
-
 find_package(KautilRegion.0.0.1.interface REQUIRED)
 find_package(KautilAlgorithmBtreeSearch.1.0.1.interface REQUIRED)
 
@@ -61,12 +60,15 @@ set(${module_name}_common_pref
 
 CMakeLibraryTemplate(${module_name} EXPORT_LIB_TYPE interface ${${module_name}_common_pref} )
 
+if(${BUILD_TEST})
 
 set(__t ${${module_name}_interface_tmain})
 add_executable(${__t})
 target_sources(${__t} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/unit_test.cc)
 target_link_libraries(${__t} PRIVATE ${${module_name}_static} kautil::algorithm::btree_search::1.0.1::interface kautil::region::0.0.1::interface )
 target_compile_definitions(${__t} PRIVATE ${${module_name}_interface_tmain_ppcs})
+
+endif()
 
 foreach(__v ${${m}_unsetter})
     unset(${__v})
