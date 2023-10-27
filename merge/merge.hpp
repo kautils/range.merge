@@ -19,7 +19,7 @@ struct merge{
     using offset_type = typename preference::offset_type;
     
     merge(preference * pref) : pref(pref){}
-    ~merge(){}
+    virtual ~merge(){}
     
     void set_buffer_size(offset_type v){ buffer_size = v; }
     void set_diff(value_type v){ diff = v; }
