@@ -52,6 +52,7 @@ set(${module_name}_common_pref
     EXPORT_VERSION ${PROJECT_VERSION}
     EXPORT_VERSION_COMPATIBILITY AnyNewerVersion
         
+    EXPORT_CONFIG_IN_ADDITIONAL_CONTENT_BEFORE ${${m}_findpkgs}
     DESTINATION_INCLUDE_DIR include/kautil/range/merge
     DESTINATION_CMAKE_DIR cmake
     DESTINATION_LIB_DIR lib
