@@ -16,7 +16,6 @@ git_clone(https://raw.githubusercontent.com/kautils/CMakeLibrarytemplate/v0.0/CM
 git_clone(https://raw.githubusercontent.com/kautils/CMakeFetchKautilModule/v1.0/CMakeFetchKautilModule.cmake)
 
 
-
 CMakeFetchKautilModule(${m}_kautil_region GIT https://github.com/kautils/region.git       REMOTE origin BRANCH v0.0)
 CMakeFetchKautilModule(${m}_kautil_btree GIT https://github.com/kautils/btree_search.git REMOTE origin BRANCH v1.0)
 
@@ -24,8 +23,9 @@ CMakeFetchKautilModule(${m}_kautil_btree GIT https://github.com/kautils/btree_se
 list(APPEND ${m}_unsetter  ${m}_merge_hpp)
 file(GLOB ${m}_merge_hpp ${CMAKE_CURRENT_LIST_DIR}/*.hpp)
 install(FILES ${${m}_merge_hpp} DESTINATION include/kautil/range/merge )
-install(SCRIPT "${${m}_kautil_btree.BUILD_DIR}/cmake_install.cmake")
-install(SCRIPT "${${m}_kautil_region.BUILD_DIR}/cmake_install.cmake")
+install(SCRIPT "${${${m}_kautil_btree.STRUCT_ID}.BUILD_DIR}/cmake_install.cmake")
+install(SCRIPT "${${${m}_kautil_region.STRUCT_ID}.BUILD_DIR}/cmake_install.cmake")
+
 
 find_package(KautilRegion.0.0.1.interface REQUIRED)
 find_package(KautilAlgorithmBtreeSearch.1.0.1.interface REQUIRED)
@@ -35,7 +35,7 @@ string(APPEND ${m}_findpkgs
     "\t set(KautilRegion.0.0.1.interface_DIR \"\\$\\{PACKAGE_PREFIX_DIR}/lib/cmake/KautilRegion.0.0.1\")\n"
     "\t find_package(KautilRegion.0.0.1.interface REQUIRED)\n"
     "endif()\n"
-        
+
     "if(EXISTS \"\\$\\{PACKAGE_PREFIX_DIR}/lib/cmake/KautilAlgorithmBtreeSearch.1.0.1\")\n"
     "\t set(KautilAlgorithmBtreeSearch.1.0.1_DIR \"\\$\\{PACKAGE_PREFIX_DIR}/lib/cmake/KautilAlgorithmBtreeSearch.1.0.1\")\n"
     "\t find_package(KautilAlgorithmBtreeSearch.1.0.1.interface REQUIRED)\n"
@@ -57,7 +57,7 @@ set(${module_name}_common_pref
     EXPORT_NAME_PREFIX ${PROJECT_NAME}
     EXPORT_VERSION ${PROJECT_VERSION}
     EXPORT_VERSION_COMPATIBILITY AnyNewerVersion
-        
+
     EXPORT_CONFIG_IN_ADDITIONAL_CONTENT_AFTER ${${m}_findpkgs}
     DESTINATION_INCLUDE_DIR include/kautil/range/merge
     DESTINATION_CMAKE_DIR cmake
