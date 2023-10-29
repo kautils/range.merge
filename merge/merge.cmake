@@ -13,7 +13,7 @@ else()
 endif()
 
 git_clone(https://raw.githubusercontent.com/kautils/CMakeFetchKautilModule/v0.0.1/CMakeFetchKautilModule.cmake)
-git_clone(https://raw.githubusercontent.com/kautils/CMakeLibrarytemplate/v0.0.1/CMakeLibrarytemplate.cmake)
+git_clone(https://raw.githubusercontent.com/kautils/CMakeLibrarytemplate/v1.0/CMakeLibrarytemplate.cmake)
 
 
 CMakeFetchKautilModule(${m}_kautil_region GIT https://github.com/kautils/region.git       REMOTE origin BRANCH v0.0)
